@@ -151,7 +151,7 @@ if ($result->num_rows > 0) {
                     </button>
                   </div>
                     <div class="col-12 text-center mt-3">
-                        <p class="fs-6">Already have account? <a href="auth-login">Sign in</a>.</p>
+                        <p class="fs-6">Already have account? <a href="signin">Sign in</a>.</p>
                     </div>
                 </form>
               </div>

@@ -142,7 +142,7 @@ if ($result->num_rows > 0) {
                     </button>
                   </div>
                     <div class="col-12 text-center mt-3">
-                        <p class="fs-6">Don't have an account? <a href="auth-register">Sign up</a>.</p>
+                        <p class="fs-6">Don't have an account? <a href="signup">Sign up</a>.</p>
                     </div>
                 </form>
               </div>

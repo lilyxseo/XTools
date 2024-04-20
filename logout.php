@@ -10,6 +10,6 @@ if (isset($_COOKIE['unique_login_cookie'])) {
 }
 
 // Redirect pengguna ke halaman login atau halaman lain yang sesuai
-header("Location: auth-login"); // Ganti "login.php" dengan halaman yang sesuai
+header("Location: signin"); // Ganti "login.php" dengan halaman yang sesuai
 exit();
 ?>
