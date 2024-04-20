@@ -1,4 +1,4 @@
--- Backup database pada 2024-04-20 23:15:21
+-- Backup database pada 2024-04-20 23:35:20
 
 CREATE TABLE `domains` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -117,23 +117,23 @@ CREATE TABLE `menu` (
   `icon` varchar(50) DEFAULT NULL,
   `link` varchar(255) NOT NULL DEFAULT '#',
   `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '["Administrator", "Member"]',
-  `parent_id` int(11) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT 0,
   `category` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO menu VALUES
-('1', 'Dashboard', 'bi bi-grid-fill', 'dashboard', '[\"Administrator\", \"Member\"]', '', 'Home'),
-('2', 'Tools', 'bi bi-tools', '#', '[\"Administrator\", \"Member\"]', '', 'Menu'),
+('1', 'Dashboard', 'bi bi-grid-fill', 'dashboard', '[\"Administrator\", \"Member\"]', '0', 'Home'),
+('2', 'Tools', 'bi bi-tools', '#', '[\"Administrator\", \"Member\"]', '0', 'Menu'),
 ('3', 'NS Checker', '', 'ns', '[\"Administrator\", \"Member\"]', '2', ''),
-('7', 'Settings', 'bi bi-gear-fill', '#', '[\"Administrator\"]', '', 'Admin'),
+('7', 'Settings', 'bi bi-gear-fill', '#', '[\"Administrator\"]', '0', 'Admin'),
 ('8', 'General', '', 'general', '[\"Administrator\"]', '7', ''),
 ('10', 'Template', '', 'template', '[\"Administrator\"]', '7', ''),
 ('12', 'Notepad Online', '', 'notepad', '[\"Administrator\", \"Member\"]', '2', ''),
-('13', 'Blank Page', 'bi bi-file', 'blank', '[\"Administrator\"]', '', 'Other'),
+('13', 'Blank Page', 'bi bi-file', 'blank', '[\"Administrator\"]', '0', 'Other'),
 ('14', 'Manage Menu', '', 'manage', '[\"Administrator\"]', '7', ''),
-('16', 'Demo Site', 'bi bi-grid-fill', 'demo/', '[\"Administrator\"]', '', 'Other'),
+('16', 'Demo Site', 'bi bi-grid-fill', 'demo/', '[\"Administrator\"]', '0', 'Other'),
 ('18', 'Bcrypt Generator', '', 'bcrypt', '[\"Administrator\", \"Member\"]', '2', ''),
 ('63', 'Export database', '', 'export', '[\"Administrator\"]', '7', ''),
 ('65', 'Cloud File', '', 'cloud', '[\"Administrator\",\"Member\"]', '2', '');

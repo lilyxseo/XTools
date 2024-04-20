@@ -85,6 +85,9 @@ if ($result->num_rows > 0) {
       body {
         padding: 0 1rem;
       }
+      .logo img {
+        padding: 50px 0;
+      }
     </style>
 </head>
 
@@ -96,8 +99,8 @@ if ($result->num_rows > 0) {
         <div class="row">
           <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
 
-            <div class="text-center mx-auto d-block my-4">
-                <img src="assets/compiled/svg/logo.svg" alt="Logo" width="140" height="100">
+            <div class="text-center mx-auto d-block my-4 logo">
+                <img src="assets/compiled/png/XT.png" alt="Logo" width="140">
             </div>
             <div class="card card-primary" style="border-top:2px solid #6777ef">
                 <div class="card-header pb-0 my-3">

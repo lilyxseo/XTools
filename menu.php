@@ -25,7 +25,7 @@ if (mysqli_num_rows($result) > 0) {
 
 
 // Query untuk mengambil data menu utama
-$sql = "SELECT * FROM menu WHERE parent_id IS NULL";
+$sql = "SELECT * FROM menu WHERE parent_id = '0'";
 $result = $conn->query($sql);
 
 $menuItems = array(); // Inisialisasi array menuItems
