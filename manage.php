@@ -184,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 </div>
                                                     <div class="col-md-8 form-group">
                                                         <select class="form-select" name="menu_parent">
-                                                            <option selected value="NULL">Choose Parent</option>
+                                                            <option selected value="0">Choose Parent</option>
                                                             <?php
 
                                                             // Periksa koneksi
@@ -193,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                             }
 
                                                             // Query untuk mengambil data parent dari database
-                                                            $query = "SELECT id, title FROM menu WHERE parent_id IS NULL";
+                                                            $query = "SELECT id, title FROM menu WHERE parent_id = '0'";
                                                             $result = mysqli_query($conn, $query);
 
                                                             // Periksa apakah query berhasil dieksekusi
