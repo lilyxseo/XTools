@@ -88,6 +88,59 @@ if ($result->num_rows > 0) {
       .logo img {
         padding: 50px 0;
       }
+      .wave {
+        -webkit-animation-name: wave-animation;
+        animation-name: wave-animation;
+        -webkit-animation-duration: 2.5s;
+        animation-duration: 2.5s;
+        -webkit-animation-iteration-count: infinite;
+        animation-iteration-count: infinite;
+        transform-origin: 70% 70%;
+        display: inline-block
+      }
+      @-webkit-keyframes wave-animation {
+        0%,60%,to {
+            transform: rotate(0)
+        }
+
+        10%,30% {
+            transform: rotate(14deg)
+        }
+
+        20% {
+            transform: rotate(-8deg)
+        }
+
+        40% {
+            transform: rotate(-4deg)
+        }
+
+        50% {
+            transform: rotate(10deg)
+        }
+    }
+
+    @keyframes wave-animation {
+        0%,60%,to {
+            transform: rotate(0)
+        }
+
+        10%,30% {
+            transform: rotate(14deg)
+        }
+
+        20% {
+            transform: rotate(-8deg)
+        }
+
+        40% {
+            transform: rotate(-4deg)
+        }
+
+        50% {
+            transform: rotate(10deg)
+        }
+      }
     </style>
 </head>
 
@@ -104,7 +157,7 @@ if ($result->num_rows > 0) {
             </div>
             <div class="card card-primary" style="border-top:2px solid #6777ef">
                 <div class="card-header pb-0 my-3">
-                    <h1 class="h3"> Welcome to <?= $siteTitle ?>! 👋🏻 </h1>
+                    <h1 class="h3"> Welcome to <?= $siteTitle ?>! <span class="wave">👋🏻</span> </h1>
                     <p>Please sign-in to your account and start the adventure</p>
                     <!-- Menambahkan elemen untuk menampilkan pesan login -->
                     <?php

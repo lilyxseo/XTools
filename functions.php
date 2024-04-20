@@ -40,7 +40,7 @@ if ($historyQuery) {
     echo "Gagal menjalankan kueri: " . mysqli_error($conn);
 }
 
-$NotepadQuery = mysqli_query($conn, "SELECT * FROM notepad WHERE owner = '$username'");
+$NotepadQuery = mysqli_query($conn, "SELECT * FROM notepad WHERE owner = '$username' ORDER BY date DESC");
 if ($NotepadQuery) {
     $NotepadData = mysqli_fetch_all($NotepadQuery, MYSQLI_ASSOC);
 

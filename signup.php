@@ -88,6 +88,22 @@ if ($result->num_rows > 0) {
       .logo img {
         padding: 50px 0;
       }
+      @keyframes tilt-animation {
+        0% {
+            transform: rotate(-4deg);
+        }
+        50% {
+            transform: rotate(4deg);
+        }
+        100% {
+            transform: rotate(-4deg);
+        }
+    }
+
+    .rocket {
+        animation: tilt-animation 1s ease-in-out infinite;
+        display: inline-block;
+    }
     </style>
 </head>
 
@@ -104,7 +120,7 @@ if ($result->num_rows > 0) {
             </div>
             <div class="card card-primary" style="border-top:2px solid #6777ef">
                 <div class="card-header pb-0 my-3">
-                    <h1 class="h3">Adventure starts here 🚀</h1>
+                <h1 class="h3">Adventure starts here <span class="rocket">🚀</span></h1>
                     <p>Make your app management easy and fun!</p>
                     <!-- Menambahkan elemen untuk menampilkan pesan login -->
                     <?php
