@@ -31,10 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Formulir kedua (untuk memperbarui data)
         $editId = $_POST['editId'];
         $editTitle = htmlspecialchars($_POST['editTitle'], ENT_QUOTES, 'UTF-8');
+        $updateDate = htmlspecialchars($_POST['updateDate'], ENT_QUOTES, 'UTF-8');
         $editContent = htmlspecialchars($_POST['editContent'], ENT_QUOTES, 'UTF-8');
 
         // Update database dengan data yang diubah
-        $updateSql = "UPDATE notepad SET title='$editTitle', content='$editContent' WHERE id='$editId'";
+        $updateSql = "UPDATE notepad SET title='$editTitle', content='$editContent', date='$updateDate' WHERE id='$editId'";
 
         if ($conn->query($updateSql) === TRUE) {
             $swal = '
@@ -180,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         </div>
                                                         <div class="modal-body">
                                                             <input type="hidden" name="editId" value="<?php echo $row['id']; ?>">
+                                                            <input type="hidden" id="updateDate" name="updateDate" value="<?php echo date('Y-m-d H:i'); ?>">
                                                             <label for="title<?php echo $index; ?>">Notepad Title: </label>
                                                             <div class="form-group">
                                                                 <input name="editTitle" id="title<?php echo $index; ?>" type="text" placeholder="title" class="form-control" value="<?php echo $row['title']; ?>">
