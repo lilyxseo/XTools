@@ -5,7 +5,7 @@
         </div>
         <div class="float-end">
             <p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                by <a href="https://bydrz.dev">Bydrz</a></p>
+                by <a href="https://bydrz.com">Bydrz</a></p>
         </div>
     </div>
 </footer>
