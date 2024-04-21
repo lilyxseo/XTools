@@ -4,13 +4,13 @@ require 'functions.php';
 
 // Periksa apakah formulir disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Periksa apakah semua input telah diterima
+    // Periksa apakah formulir disubmit
     if (isset($_POST["submit"])) {
         // Ambil nilai dari setiap input
         $menu_title = $_POST["menu_title"];
         $menu_icon = isset($_POST["menu_icon"]) ? $_POST["menu_icon"] : NULL;
         $menu_link = $_POST["menu_link"];
-        $menu_parent = !empty($_POST["menu_parent"]) ? $_POST["menu_parent"] : null;
+        $menu_parent = !empty($_POST["menu_parent"]) ? $_POST["menu_parent"] : 0;
         $menu_category = $_POST["menu_category"];
 
         // Persiapkan array kosong untuk menyimpan permission
@@ -27,19 +27,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Konversi array ke JSON
         $menu_permission = json_encode($permissions);
 
-        // Membuat koneksi ke database
-        $conn = mysqli_connect("localhost", "root", "", "panel");
+        // Query untuk menyimpan data ke database dengan prepared statement
+        $query = "INSERT INTO menu (title, icon, link, permissions, parent_id, category) VALUES (?, ?, ?, ?, ?, ?)";
 
-        // Periksa koneksi
-        if (!$conn) {
-            die("Koneksi gagal: " . mysqli_connect_error());
-        }
+        // Persiapkan statement
+        $stmt = mysqli_prepare($conn, $query);
 
-        // Query untuk menyimpan data ke database
-        $query = "INSERT INTO menu (title, icon, link, permissions, parent_id, category) VALUES ('$menu_title', '$menu_icon', '$menu_link', '$menu_permission', $menu_parent, '$menu_category')";
+        // Bind parameter ke placeholders
+        mysqli_stmt_bind_param($stmt, "ssssis", $menu_title, $menu_icon, $menu_link, $menu_permission, $menu_parent, $menu_category);
 
-        // Menjalankan query
-        if (mysqli_query($conn, $query)) {
+        // Eksekusi statement
+        if (mysqli_stmt_execute($stmt)) {
             $successMessage = "Menu berhasil disimpan!";
             // Copy file blank.php dan ubah namanya sesuai dengan menu_link
             $blankFile = "blank.php";
@@ -51,16 +49,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $errorMessage = "Gagal menyalin file $blankFile.";
             }
             header("Location: manage");
+            exit; // Hindari eksekusi kode selanjutnya setelah redirect
         } else {
             $errorMessage = "Gagal menyimpan menu: " . mysqli_error($conn);
         }
 
-        // Menutup koneksi
+        // Tutup statement dan koneksi
+        mysqli_stmt_close($stmt);
         mysqli_close($conn);
     } else {
         $errorMessage = "Gagal menyimpan menu. Pastikan semua kolom diisi.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
