@@ -176,10 +176,10 @@ if (isset($_POST['upload'])) {
                                     <td><span class="badge" style="background-color: <?php echo $fileTypeBadgeColor; ?>"><?php echo $fileType; ?></span></td>
                                     <td>
                                         <a href="<?php echo $filePath; ?>" download class="btn icon icon-left btn-outline-primary me-2 text-nowrap">
-                                            <i class="bi bi-cloud-download"></i> Download
+                                            <i class="bi bi-cloud-download"></i>
                                         </a>
                                         <button type="button" name="delete" class="btn icon icon-left btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>">
-                                            <i class="bi bi-trash"></i> Hapus
+                                            <i class="bi bi-trash"></i> 
                                         </button>
                                         <div class="modal fade text-left" id="confirmDeleteModal-<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel-<?php echo $index; ?>" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered" role="document">

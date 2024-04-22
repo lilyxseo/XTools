@@ -162,8 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <td><?php echo $row['title']; ?></td>
                                             <td><?php echo $searchDateWithoutSeconds = date('Y-m-d H:i', strtotime($row['date'])); ?></td>
                                             <td>
-                                                <button class="btn icon icon-left btn-outline-primary me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#modal-<?php echo $index; ?>"><i class="bi bi-eye-fill"></i> Show</button>
-                                                <button class="btn icon icon-left btn-outline-danger me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>"><i class="bi bi-x-circle"></i> Remove</button>
+                                                <button class="btn icon icon-left btn-outline-primary me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#modal-<?php echo $index; ?>"><i class="bi bi-eye-fill"></i></button>
+                                                <button class="btn icon icon-left btn-outline-danger me-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>"><i class="bi bi-trash"></i></button>
                                             </td>
                                         </tr>
                                     <?php } ?>
