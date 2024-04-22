@@ -2,8 +2,8 @@
 
 // Inisialisasi koneksi ke database
 $host = 'localhost';
-$user = 'bydrz';
-$pass = '123';
+$user = 'root';
+$pass = '';
 $db = 'xtools';
 
 $conn = mysqli_connect($host, $user, $pass, $db);
