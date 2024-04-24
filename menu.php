@@ -95,6 +95,62 @@ foreach ($visibleMenuItems as $menuItem) {
     }
 }
 
+// Query untuk mendapatkan data menu berdasarkan currentPage
+$queryMenu = "SELECT * FROM menu WHERE link = '$currentPage'";
+$resultMenu = $conn->query($queryMenu);
+
+// Array untuk menyimpan data menu
+$dataMenu = array();
+
+if ($resultMenu->num_rows > 0) {
+    // Jika data menu ditemukan, simpan ke dalam array
+    while ($rowMenu = $resultMenu->fetch_assoc()) {
+        $dataMenu[] = array(
+            'title' => $rowMenu['title'],
+            'icon' => $rowMenu['icon'],
+            'link' => $rowMenu['link'],
+            'permissions' => json_decode($rowMenu['permissions'], true),
+            'submenu' => array(),
+            'category' => $rowMenu['category']
+        );
+    }
+}
+// Query untuk mendapatkan parent_id berdasarkan currentPage
+$queryParentId = "SELECT * FROM menu WHERE link = '$currentPage'";
+$resultParentId = $conn->query($queryParentId);
+
+// Variabel untuk menyimpan parent_id
+$parent_id = null;
+
+if ($resultParentId->num_rows > 0) {
+    // Jika data parent_id ditemukan, ambil nilainya
+    $rowParentId = $resultParentId->fetch_assoc();
+    $parent_id = $rowParentId['parent_id'];
+}
+
+// Jika parent_id adalah 0, ganti query untuk mencari kategori
+if ($parent_id == 0) {
+    $queryMenuId = "SELECT category FROM menu WHERE link = '$currentPage'";
+} else {
+    $queryMenuId = "SELECT title FROM menu WHERE id = '$parent_id'";
+}
+
+$resultMenuId = $conn->query($queryMenuId);
+
+// Jika data ditemukan, ambil kolom yang sesuai
+if ($resultMenuId->num_rows > 0) {
+    $rowMenuId = $resultMenuId->fetch_assoc();
+    if ($parent_id == 0) {
+        // Ambil title jika parent_id adalah 0
+        $menuId = $rowMenuId['category'];
+    } else {
+        // Ambil category jika parent_id bukan 0
+        $menuId = $rowMenuId['title'];
+    }
+}
+
+
+
 if ($activeSubMenu !== null) {
     $pageTitle = $activeSubMenu['title'];
 } elseif ($activeMenu !== null) {
