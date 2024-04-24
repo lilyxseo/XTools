@@ -139,80 +139,79 @@ if (isset($_POST['upload'])) {
                                 </h5>
                             </div>
                             <div class="card-body">
-    <div class="table-responsive">
-        <table class="table" id="table1">
-            <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Nama File</th>
-                    <th>Tanggal Upload</th>
-                    <th>Type</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $uploadDirectory = 'uploads/';
-                $users = scandir($uploadDirectory);
-                $index = 0;
-                foreach ($users as $user) {
-                    if ($user != '.' && $user != '..' && is_dir($uploadDirectory . $user)) {
-                        $files = scandir($uploadDirectory . $user);
-                        foreach ($files as $file) {
-                            if ($file != '.' && $file != '..') {
-                                $index++;
-                                // Ambil informasi file
-                                $filePath = $uploadDirectory . $user . '/' . $file;
-                                $fileInfo = pathinfo($filePath);
-                                $fileType = strtoupper($fileInfo['extension']);
-                                // Generate random hex color for badge
-                                $fileTypeBadgeColor = '#' . substr(md5(rand()), 0, 6);
-                                // Tampilkan data file pada tabel
-                                ?>
-                                <tr>
-                                    <td><?php echo $index; ?></td>
-                                    <td><?php echo $fileInfo['filename']; ?></td>
-                                    <td><?php echo date("Y-m-d H:i:s", filemtime($filePath)); ?></td>
-                                    <td><span class="badge" style="background-color: <?php echo $fileTypeBadgeColor; ?>"><?php echo $fileType; ?></span></td>
-                                    <td>
-                                        <a href="<?php echo $filePath; ?>" download class="btn icon icon-left btn-outline-primary me-2 text-nowrap">
-                                            <i class="bi bi-cloud-download"></i>
-                                        </a>
-                                        <button type="button" name="delete" class="btn icon icon-left btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>">
-                                            <i class="bi bi-trash"></i> 
-                                        </button>
-                                        <div class="modal fade text-left" id="confirmDeleteModal-<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel-<?php echo $index; ?>" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="confirmDeleteModalLabel-<?php echo $index; ?>">Konfirmasi Penghapusan</h5>
-                                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Apakah Anda yakin ingin menghapus file <?php echo $file; ?>?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                        <a class="btn btn-danger" href="delete.php?file=<?php echo urlencode($file); ?>">Hapus</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php
-                            }
-                        }
-                    }
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-
+                                <div class="table-responsive">
+                                    <table class="table" id="table1">
+                                        <thead>
+                                            <tr>
+                                                <th>No.</th>
+                                                <th>Nama File</th>
+                                                <th>Tanggal Upload</th>
+                                                <th>Type</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $uploadDirectory = 'uploads/';
+                                            $users = scandir($uploadDirectory);
+                                            $index = 0;
+                                            foreach ($users as $user) {
+                                                if ($user != '.' && $user != '..' && is_dir($uploadDirectory . $user)) {
+                                                    $files = scandir($uploadDirectory . $user);
+                                                    foreach ($files as $file) {
+                                                        if ($file != '.' && $file != '..') {
+                                                            $index++;
+                                                            // Ambil informasi file
+                                                            $filePath = $uploadDirectory . $user . '/' . $file;
+                                                            $fileInfo = pathinfo($filePath);
+                                                            $fileType = strtoupper($fileInfo['extension']);
+                                                            // Generate random hex color for badge
+                                                            $fileTypeBadgeColor = '#' . substr(md5(rand()), 0, 6);
+                                                            // Tampilkan data file pada tabel
+                                                            ?>
+                                                            <tr>
+                                                                <td><?php echo $index; ?></td>
+                                                                <td><?php echo $fileInfo['filename']; ?></td>
+                                                                <td><?php echo date("Y-m-d H:i:s", filemtime($filePath)); ?></td>
+                                                                <td><span class="badge" style="background-color: <?php echo $fileTypeBadgeColor; ?>"><?php echo $fileType; ?></span></td>
+                                                                <td>
+                                                                    <a href="<?php echo $filePath; ?>" download class="btn icon icon-left btn-outline-primary me-2 text-nowrap">
+                                                                        <i class="bi bi-cloud-download"></i>
+                                                                    </a>
+                                                                    <button type="button" name="delete" class="btn icon icon-left btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>">
+                                                                        <i class="bi bi-trash"></i> 
+                                                                    </button>
+                                                                    <div class="modal fade text-left" id="confirmDeleteModal-<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel-<?php echo $index; ?>" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title" id="confirmDeleteModalLabel-<?php echo $index; ?>">Konfirmasi Penghapusan</h5>
+                                                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    Apakah Anda yakin ingin menghapus file <?php echo $file; ?>?
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                                                    <a class="btn btn-danger" href="delete.php?file=<?php echo urlencode($file); ?>">Hapus</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
