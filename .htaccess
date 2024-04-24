@@ -9,7 +9,3 @@ RewriteRule ^([^/]+)/?$ $1.php [L]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^/]+)/?$ $1.php [L]
-
-# Mengarahkan error 404 dan 403 ke file kustom
-ErrorDocument 404 /error/404.php
-ErrorDocument 403 /error/403.php
