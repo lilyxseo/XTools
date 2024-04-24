@@ -27,7 +27,23 @@ require 'functions.php';
             <?php include'view/navbar.txt'?>
             
             <div id="main-content">
-                
+                <div class="row">
+                    <div class="col-12 col-md-6 order-md-1 order-last">
+                        <h3>Lorem, ipsum.</h3>
+                        <p class="text-subtitle text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab, cumque!</p>
+                    </div>
+                    <div class="col-12 col-md-6 order-md-2 order-first">
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <?php foreach ($dataMenu as $menuItem): ?>
+                                    <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page"><?= $menuId; ?></li>
+                                    <li class="breadcrumb-item active" aria-current="page"><?= $menuItem['title'];; ?></li>
+                                <?php endforeach; ?>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
             </div>
 
             <?php include 'view/footer.txt'?>
