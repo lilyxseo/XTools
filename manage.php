@@ -104,6 +104,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .struktur li {
             margin: 3px;
         }
+        html[data-bs-theme="dark"] .struktur li a {
+        color: var(--bs-card-color);
+        }
     </style>
 
     <!-- Meta Tag -->
