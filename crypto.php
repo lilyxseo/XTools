@@ -64,6 +64,9 @@ $coins = array(
         .price {
             font-size: .95rem;
         }
+        html[data-bs-theme="dark"] .price {
+            font-size: .95rem;
+        }
     </style>
 
     <!-- Meta Tag -->
