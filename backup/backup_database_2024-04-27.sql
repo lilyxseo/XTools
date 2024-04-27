@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -- Backup database pada 2024-04-27 20:17:15
 
 CREATE TABLE `app` (
@@ -18,6 +19,19 @@ CREATE TABLE `domains` (
   `name_servers` text NOT NULL,
   `search_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `owner` varchar(255) DEFAULT NULL,
+=======
+-- Backup database pada 2024-04-27 19:53:08
+
+CREATE TABLE `domains` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `domain_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `created_date` date NOT NULL,
+  `expiry_date` date NOT NULL,
+  `registrar` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `name_servers` text COLLATE utf8mb4_general_ci NOT NULL,
+  `search_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `owner` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -57,6 +71,7 @@ INSERT INTO domains VALUES
 ('74', 'hosterbyte.net', '2017-12-05', '2023-12-05', 'CV. Jogjacamp', 'Name Server 1: pam.ns.cloudflare.com<br>Name Server 2: rocky.ns.cloudflare.com<br>', '2023-11-18 03:31:00', '123');
 
 CREATE TABLE `login_cookies` (
+<<<<<<< HEAD
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `cookie_value` varchar(255) NOT NULL,
@@ -64,6 +79,15 @@ CREATE TABLE `login_cookies` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+=======
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `cookie_value` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
 
 INSERT INTO login_cookies VALUES
 ('20', '1', 'b8bca98cd748a56134c8fd54ca3ed010', '2023-11-16 07:16:44'),
@@ -128,6 +152,7 @@ INSERT INTO login_cookies VALUES
 ('79', '1', 'dfeaa3056e14089fef8f014521ada450', '2024-04-24 23:33:48'),
 ('80', '1', '0ed8cdc940f9b827288742e833890056', '2024-04-27 17:58:24'),
 ('81', '1', '04bf017d758ba3441cf9558a704b89f5', '2024-04-27 19:25:26'),
+<<<<<<< HEAD
 ('82', '1', '5be1d664af8224693c301c69c063ff90', '2024-04-27 19:52:58'),
 ('83', '1', '82858a40787badf636a458fe5f40f0c8', '2024-04-27 19:53:49');
 
@@ -139,6 +164,18 @@ CREATE TABLE `menu` (
   `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `parent_id` int(11) DEFAULT 0,
   `category` varchar(255) NOT NULL,
+=======
+('82', '1', '5be1d664af8224693c301c69c063ff90', '2024-04-27 19:52:58');
+
+CREATE TABLE `menu` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `icon` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `link` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '#',
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `parent_id` int DEFAULT '0',
+  `category` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -162,11 +199,19 @@ INSERT INTO menu VALUES
 ('68', 'Slot', '', 'slot', '[\"Administrator\"]', '66', '');
 
 CREATE TABLE `notepad` (
+<<<<<<< HEAD
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `content` text DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT current_timestamp(),
   `owner` varchar(10) NOT NULL,
+=======
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `content` text COLLATE utf8mb4_general_ci,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `owner` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -184,11 +229,19 @@ INSERT INTO notepad VALUES
 ('57', 'git access token', 'glpat-xC3M5o86Cf3fZE3wbFfv\r\n\r\n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', '2024-04-21 22:33:00', 'bydrz');
 
 CREATE TABLE `settings` (
+<<<<<<< HEAD
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `site_title` varchar(255) NOT NULL,
   `site_description` text DEFAULT NULL,
   `site_logo` varchar(255) DEFAULT NULL,
   `favicon` varchar(255) DEFAULT NULL,
+=======
+  `id` int NOT NULL AUTO_INCREMENT,
+  `site_title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `site_description` text COLLATE utf8mb4_general_ci,
+  `site_logo` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `favicon` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -196,6 +249,7 @@ INSERT INTO settings VALUES
 ('1', 'XTools', 'Berisi alat yang di gunakan untuk deface dan mencari kelemahan suatu website, namun tidak hanya alat untuk deface saja, disini juga menyediakan programmer dan lookup tools.', 'logo.svg', 'favicon.svg');
 
 CREATE TABLE `users` (
+<<<<<<< HEAD
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `full_name` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
@@ -203,6 +257,15 @@ CREATE TABLE `users` (
   `registration_date` datetime DEFAULT NULL,
   `level` varchar(255) NOT NULL DEFAULT 'Member',
   `pic` varchar(255) DEFAULT NULL,
+=======
+  `id` int NOT NULL AUTO_INCREMENT,
+  `full_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `username` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `registration_date` datetime DEFAULT NULL,
+  `level` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Member',
+  `pic` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+>>>>>>> b6032f6106c9e335d34ffbb7d970a27dbde374ba
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
