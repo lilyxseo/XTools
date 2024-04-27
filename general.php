@@ -2,36 +2,66 @@
 include 'menu.php';
 require 'functions.php';
 
+// Query untuk mengambil URL aplikasi dilakukan di sini
+$appURL = "";
+$sql = "SELECT url FROM app WHERE id = 1"; // Ubah sesuai dengan nama tabel dan struktur database Anda
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $appURL = $row["url"];
+}
+
+// Pastikan bahwa metode permintaan adalah POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-// Ambil data dari form yang di-post
-    $siteTitle = $_POST['site_title'];
-    $siteDescription = $_POST['site_description'];
-    $siteLogo = ''; // Inisialisasi variabel $siteLogo
-    $siteFavicon = ''; // Inisialisasi variabel $siteFavicon
+    // Jika formulir pertama (site settings) di-submit
+    if (isset($_POST['site_submit'])) {
+        // Ambil data dari form yang di-post
+        $siteTitle = $_POST['site_title'];
+        $siteDescription = $_POST['site_description'];
+        $siteLogo = ''; // Inisialisasi variabel $siteLogo
+        $siteFavicon = ''; // Inisialisasi variabel $siteFavicon
 
-    // Periksa apakah pengguna tidak mengubah "Site Logo" dan "Favicon"
-    if (empty($siteLogo)) {
-        $siteLogo = "logo.svg"; // Nilai default untuk "Site Logo"
+        // Periksa apakah pengguna tidak mengubah "Site Logo" dan "Favicon"
+        if (empty($siteLogo)) {
+            $siteLogo = "logo.svg"; // Nilai default untuk "Site Logo"
+        }
+
+        if (empty($siteFavicon)) {
+            $siteFavicon = "favicon.svg"; // Nilai default untuk "Favicon"
+        }
+
+        // Buat query SQL untuk mengupdate data dalam tabel website_settings
+        $sql = "UPDATE settings SET 
+                site_title = '$siteTitle',
+                site_description = '$siteDescription',
+                site_logo = '$siteLogo',
+                favicon = '$siteFavicon'
+                WHERE id = 1"; // Sesuaikan dengan kondisi yang sesuai
+
+        // Eksekusi query
+        if ($conn->query($sql) === TRUE) {
+            $successMessage1 = "Data berhasil diperbarui!";
+        } else {
+            $errorMessage1 = "Gagal memperbarui foto profil.";
+        }
     }
 
-    if (empty($siteFavicon)) {
-        $siteFavicon = "favicon.svg"; // Nilai default untuk "Favicon"
-    }
-
-    // Buat query SQL untuk mengupdate data dalam tabel website_settings
-    $sql = "UPDATE settings SET 
-            site_title = '$siteTitle',
-            site_description = '$siteDescription',
-            site_logo = '$siteLogo',
-            favicon = '$siteFavicon'
-            WHERE id = 1"; // Sesuaikan dengan kondisi yang sesuai
-
-    if ($conn->query($sql) === TRUE) {
-        $successMessage = "Data berhasil diperbarui!";
-    } else {
-        $errorMessage = "Gagal memperbarui foto profil.";
+    // Jika formulir kedua (app settings) di-submit
+    if (isset($_POST['app_submit'])) {
+        $appURL = $_POST['app_url'];
+        $sql = "UPDATE app SET 
+                url = '$appURL'
+                WHERE id = 1"; // Ubah sesuai dengan kondisi yang sesuai
+        if ($conn->query($sql) === TRUE) {
+            $successMessage2 = "URL aplikasi berhasil diperbarui!";
+        } else {
+            $errorMessage2 = "Gagal memperbarui URL aplikasi.";
+        }
     }
 }
+?>
+
+
 ?> 
 <!DOCTYPE html>
 <html lang="en">
@@ -82,15 +112,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6 col-12">
                             <div class="card">
                                 <div class="card-header pb-2">
-                                    <h4 class="card-title">Website Settings</h4>
+                                    <h4 class="card-title">Application Settings</h4>
                                 </div>
                                 <div class="card-content">
                                     <div class="card-body pt-2">
-                                        <?php if (isset($errorMessage)) : ?>
-                                            <div class="alert alert-danger"><?php echo $errorMessage; ?></div>
+                                        <?php if (isset($errorMessage1)) : ?>
+                                            <div class="alert alert-danger"><?php echo $errorMessage1; ?></div>
                                         <?php endif; ?>
-                                        <?php if (isset($successMessage)) : ?>
-                                            <div class="alert alert-success"><?php echo $successMessage; ?></div>
+                                        <?php if (isset($successMessage1)) : ?>
+                                            <div class="alert alert-success"><?php echo $successMessage1; ?></div>
                                         <?php endif; ?>
                                         <form class="form form-horizontal" method="post" action="">
                                             <div class="form-body">
@@ -122,7 +152,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         <input type="file" id="site-favicon" class="form-control" name="site_favicon">
                                                     </div>
                                                     <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                        <button type="submit" class="btn btn-outline-primary me-1 mb-1">Save Changes</button>
+                                                        <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Save Changes</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <div class="card">
+                                <div class="card-header pb-2">
+                                    <h4 class="card-title">URL Settings</h4>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-body pt-2">
+                                        <?php if (isset($errorMessage2)) : ?>
+                                            <div class="alert alert-danger"><?php echo $errorMessage2; ?></div>
+                                        <?php endif; ?>
+                                        <?php if (isset($successMessage2)) : ?>
+                                            <div class="alert alert-success"><?php echo $successMessage2; ?></div>
+                                        <?php endif; ?>
+                                        <form class="form form-horizontal" method="post" action="">
+                                            <div class="form-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <label for="app-url">Application URL</label>
+                                                    </div>
+                                                    <div class="col-md-8 form-group">
+                                                        <input type="text" id="app-url" class="form-control" name="app_url" placeholder="Application URL" value="<?php echo $appURL; ?>">
+                                                    </div>
+                                                    <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                        <button type="submit" name="app_submit" class="btn btn-outline-primary me-1 mb-1">Save Changes</button>
                                                     </div>
                                                 </div>
                                             </div>

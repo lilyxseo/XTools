@@ -44,6 +44,8 @@ require 'functions.php';
                         </nav>
                     </div>
                 </div>
+                <!-- Your content -->
+                
             </div>
 
             <?php include 'view/footer.txt'?>

@@ -2,7 +2,7 @@
 
 // Inisialisasi koneksi ke database
 $host = 'localhost';
-$user = 'bydrz';
+$user = 'root';
 $pass = '';
 $db = 'xtools';
 
@@ -12,4 +12,5 @@ if (!$conn) {
     die("Koneksi ke database gagal: " . mysqli_connect_error());
 }
 
-; ?>
+; 
+?>
