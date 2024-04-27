@@ -25,4 +25,5 @@ if ($result->num_rows > 0) {
 
 // Tutup koneksi ke database
 $conn->close();
+header("Location: $appURL");
 ?>

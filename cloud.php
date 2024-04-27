@@ -180,6 +180,9 @@ if (isset($_POST['upload'])) {
                                                                     <a href="<?php echo $filePath; ?>" download class="btn icon icon-left btn-outline-primary me-2 text-nowrap">
                                                                         <i class="bi bi-cloud-download"></i>
                                                                     </a>
+                                                                    <a href="<?php echo $filePath; ?>" class="btn icon icon-left btn-outline-warning me-2 text-nowrap">
+                                                                        <i class="bi bi-eye"></i> 
+                                                                    </a>
                                                                     <button type="button" name="delete" class="btn icon icon-left btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>">
                                                                         <i class="bi bi-trash"></i> 
                                                                     </button>

@@ -43,7 +43,7 @@ if ($result->num_rows > 0) {
         );
 
         // Query untuk mengambil submenu
-        $submenu_sql = "SELECT * FROM menu WHERE parent_id = " . $row["id"];
+        $submenu_sql = "SELECT * FROM menu WHERE parent_id = " . $row["id"] . " ORDER BY title ASC";
         $submenu_result = $conn->query($submenu_sql);
 
         if ($submenu_result->num_rows > 0) {
