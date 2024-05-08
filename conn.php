@@ -1,7 +1,7 @@
 <?php 
 
 // Inisialisasi koneksi ke database
-$host = '8.215.6.187';
+$host = 'notlove.me';
 $user = 'bydrz';
 $pass = '';
 $db = 'xtools';
