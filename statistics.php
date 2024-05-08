@@ -15,6 +15,17 @@ require 'functions.php';
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./assets/compiled/css/table-datatable-jquery.css">
+    <link rel="stylesheet" href="assets/extensions/flatpickr/flatpickr.min.css">
+    <style>
+        .input-group-prepend {
+            flex: 0 0 auto;
+        }
+
+        .input-group-text {
+            border-top-left-radius: .25rem;
+            border-bottom-left-radius: .25rem;
+        }
+    </style>
 
     <!-- Meta Tag -->
     <?php include 'view/meta.txt'?>
@@ -124,6 +135,64 @@ require 'functions.php';
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <!-- Chart Statistik -->
+                            <div class="col-12 col-lg-6">
+                            <div class="card">
+                                    <div class="card-header">
+                                        <h4>Tambah data</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="process_data.php" method="POST">
+                                            <div class="mb-3">
+                                                <label for="judul" class="form-label">Judul:</label>
+                                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nominal" class="form-label">Nominal:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Rp.</span>
+                                                    <input type="text" class="form-control" id="tanpa-rupiah" name="nominal" placeholder="1.000.000" required pattern="[0-9]*" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="keterangan" class="form-label">Keterangan:</label>
+                                                <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Jenis:</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="jenis" id="pemasukan" value="pemasukan" checked>
+                                                    <label class="form-check-label" for="pemasukan">Pemasukan</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="jenis" id="pengeluaran" value="pengeluaran">
+                                                    <label class="form-check-label" for="pengeluaran">Pengeluaran</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                <button type="submit" class="btn btn-outline-primary me-1 mb-1">Tambah Data</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Pilih Tanggal</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="get">
+                                            <input type="text" name="date" class="form-control flatpickr-range mb-3 flatpickr-input" placeholder="Select date.." readonly="readonly">
+                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Send</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Card Transaksi Terakhir -->
                     <div class="col-12 col-lg-4">
@@ -152,7 +221,7 @@ require 'functions.php';
                                                                 <div class="row align-items-center">
                                                                     <div class="col-auto">
                                                                         <div class="stats-icon bg-success mb-2">
-                                                                            <i class="bi-cash fs-4"></i>
+                                                                            <i class="bi-arrow-up-right fs-4"></i>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col">
@@ -175,7 +244,7 @@ require 'functions.php';
                                                                 <div class="row align-items-center">
                                                                     <div class="col-auto">
                                                                         <div class="stats-icon bg-danger mb-2">
-                                                                            <i class="bi-cake fs-4"></i>
+                                                                            <i class="bi-arrow-down-right fs-4"></i>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col">
@@ -198,7 +267,7 @@ require 'functions.php';
                                                                 <div class="row align-items-center">
                                                                     <div class="col-auto">
                                                                         <div class="stats-icon bg-success mb-2">
-                                                                            <i class="bi-cash fs-4"></i>
+                                                                            <i class="bi-arrow-up-right fs-4"></i>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col">
@@ -231,6 +300,7 @@ require 'functions.php';
     
     <!-- Custom JS -->
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/extensions/flatpickr/flatpickr.min.js"></script>
     <script src="assets/extensions/jquery/jquery.min.js"></script>
     <script src="assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
@@ -317,11 +387,43 @@ require 'functions.php';
           show: false
         }
         };
-
         var pie = new ApexCharts(document.querySelector("#pie"), options);
 
             pie.render();
             bar.render();
+
+
+            flatpickr('.flatpickr-range', {
+            dateFormat: "Y-m-d", 
+            mode: 'range',
+            maxDate: "today"
+        })
+
+    var tanpa_rupiah = document.getElementById('tanpa-rupiah');
+    tanpa_rupiah.addEventListener('keyup', function(e)
+    {
+        tanpa_rupiah.value = formatRupiah(this.value);
+    });
+    /* Fungsi */
+    function formatRupiah(angka, prefix) {
+    var number_string = angka.replace(/[^,\d]/g, '').toString(),
+        split = number_string.split(','),
+        sisa = split[0].length % 3,
+        rupiah = split[0].substr(0, sisa),
+        ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+    if (ribuan) {
+        separator = sisa ? '.' : '';
+        rupiah += separator + ribuan.join('.');
+    }
+
+    // Menambahkan pemisah ribuan untuk jutaan, miliaran, dan seterusnya
+    for (var i = 1; i < split.length; i++) {
+        rupiah += ',' + split[i];
+    }
+
+    return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+}
 
     </script>
 </body>
