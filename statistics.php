@@ -103,20 +103,20 @@ require 'functions.php';
                         </div>
                         <div class="row">
                             <!-- Chart Statistik -->
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-8">
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Statistik Pemasukan</h4>
                                     </div>
                                     <div class="card-body">
-                                        <div id="chart"></div>
+                                        <div id="bar"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-6">
+                            <div class="col-12 col-lg-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Statistik Pemasukan</h4>
+                                        <h4>Data Pengeluaran</h4>
                                     </div>
                                     <div class="card-body">
                                         <div id="pie"></div>
@@ -156,7 +156,7 @@ require 'functions.php';
                                                                         </div>
                                                                     </div>
                                                                     <div class="col">
-                                                                        <h6 class="mb-0">Gajian</h6>
+                                                                        <h6 class="mb-0">THR</h6>
                                                                         <p class="text-muted text-sm mb-1">8 Mei 2024</p>
                                                                     </div>
                                                                     <div class="col-auto">
@@ -286,30 +286,40 @@ require 'functions.php';
             },
         },
         };
-            var bar = new ApexCharts(document.querySelector("#chart"), barOptions);
+        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
 
         var options = {
-          series: [44, 55, 13, 43, 22],
+          series: [25, 15, 44, 55, 41, 17, 12],
           chart: {
-          width: 350,
+          width: '100%',
           type: 'pie',
         },
-        labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
-        responsive: [{
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200
-            },
-            legend: {
-              position: 'bottom'
+        labels: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+        theme: {
+          monochrome: {
+            enabled: true
+          }
+        },
+        plotOptions: {
+          pie: {
+            dataLabels: {
+              offset: -5
             }
           }
-        }]
+        },
+        dataLabels: {
+          formatter(val, opts) {
+            const name = opts.w.globals.labels[opts.seriesIndex]
+            return [name, val.toFixed(1) + '%']
+          }
+        },
+        legend: {
+          show: false
+        }
         };
 
         var pie = new ApexCharts(document.querySelector("#pie"), options);
-        
+
             pie.render();
             bar.render();
 
