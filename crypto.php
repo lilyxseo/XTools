@@ -24,7 +24,7 @@ $coins = array(
         'image' => 'https://indodax.com/v2/logo/svg/color/btc.svg',
     ),
     'token_idr' => array(
-        'name' => 'TokeFI',
+        'name' => 'TokenFI',
         'image' => 'https://indodax.com/v2/logo/svg/color/token.svg',
     ),
     'ondo_idr' => array(
