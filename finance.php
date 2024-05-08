@@ -30,8 +30,8 @@ require 'functions.php';
             <div id="main-content">
                 <div class="row">
                     <div class="col-12 col-md-6 order-md-1 order-last">
-                        <h3>Lorem, ipsum.</h3>
-                        <p class="text-subtitle text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab, cumque!</p>
+                        <h3>Statistics Finance</h3>
+                        <p class="text-subtitle text-muted">Track recent transactions, monitor investment progress, and make informed decisions for your financial future.!</p>
                     </div>
                     <div class="col-12 col-md-6 order-md-2 order-first">
                         <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
@@ -103,13 +103,23 @@ require 'functions.php';
                         </div>
                         <div class="row">
                             <!-- Chart Statistik -->
-                            <div class="col-12 col-lg-12">
+                            <div class="col-12 col-lg-6">
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Statistik Pemasukan</h4>
                                     </div>
                                     <div class="card-body">
                                         <div id="chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Statistik Pemasukan</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="pie"></div>
                                     </div>
                                 </div>
                             </div>
@@ -278,6 +288,29 @@ require 'functions.php';
         };
             var bar = new ApexCharts(document.querySelector("#chart"), barOptions);
 
+        var options = {
+          series: [44, 55, 13, 43, 22],
+          chart: {
+          width: 350,
+          type: 'pie',
+        },
+        labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
+        };
+
+        var pie = new ApexCharts(document.querySelector("#pie"), options);
+        
+            pie.render();
             bar.render();
 
     </script>
