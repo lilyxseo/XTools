@@ -138,7 +138,7 @@ require 'functions.php';
                         <div class="row">
                             <!-- Chart Statistik -->
                             <div class="col-12 col-lg-6">
-                            <div class="card">
+                                <div class="card">
                                     <div class="card-header">
                                         <h4>Tambah data</h4>
                                     </div>
@@ -152,7 +152,7 @@ require 'functions.php';
                                                 <label for="nominal" class="form-label">Nominal:</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp.</span>
-                                                    <input type="text" class="form-control" id="tanpa-rupiah" name="nominal" placeholder="1.000.000" required pattern="[0-9]*" required>
+                                                    <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="1.000.000" required pattern="[0-9]*" required>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
@@ -186,7 +186,26 @@ require 'functions.php';
                                         <form method="get">
                                             <input type="text" name="date" class="form-control flatpickr-range mb-3 flatpickr-input" placeholder="Select date.." readonly="readonly">
                                             <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Send</button>
+                                                <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Uang saat ini</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="get">
+                                            <div class="mb-3">
+                                                <label for="nominal" class="form-label">Nominal:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Rp.</span>
+                                                    <input type="text" class="form-control" id="nominal2" name="nominal" placeholder="1.000.000" value="3.500.000" required pattern="[0-9]*" required>
+                                                </div>
+                                                <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                    <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                </div>
                                             </div>
                                         </form>
                                     </div>
@@ -310,11 +329,15 @@ require 'functions.php';
         series: [
             {
             name: "Pemasukan",
-            data: [44, 55, 57, 56, 61, 58, 212],
+            data: [44, 55, 57, 56, 61, 58, 112],
             },
             {
             name: "Pengeluaran",
             data: [76, 85, 101, 98, 87, 105, 120],
+            },
+            {
+            name: "Uang Saya",
+            data: [120, 140, 158, 154, 148, 163, 232],
             },
         ],
         chart: {
@@ -331,7 +354,7 @@ require 'functions.php';
         dataLabels: {
             enabled: false,
         },
-        colors: ['#198754', '#dc3545'],
+        colors: ['#198754', '#dc3545', '#6c757d'],
         stroke: {
             show: true,
             width: 2,
@@ -399,10 +422,15 @@ require 'functions.php';
             maxDate: "today"
         })
 
-    var tanpa_rupiah = document.getElementById('tanpa-rupiah');
-    tanpa_rupiah.addEventListener('keyup', function(e)
+    var nominal1 = document.getElementById('nominal1');
+    nominal1.addEventListener('keyup', function(e)
     {
-        tanpa_rupiah.value = formatRupiah(this.value);
+        nominal1.value = formatRupiah(this.value);
+    });
+    var nomninal2 = document.getElementById('nominal2');
+    nomninal2.addEventListener('keyup', function(e)
+    {
+        nomninal2.value = formatRupiah(this.value);
     });
     /* Fungsi */
     function formatRupiah(angka, prefix) {
