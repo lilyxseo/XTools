@@ -11,4 +11,9 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     }, false);
+     window.addEventListener('load', function() {
+        var loadTime = window.performance.timing.domContentLoadedEventEnd - window.performance.timing.navigationStart;
+        var pageLoadSpan = document.getElementById('pageLoadTime');
+        pageLoadSpan.textContent = loadTime.toLocaleString() + ' ms';
+    });
     </script>

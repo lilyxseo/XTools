@@ -22,26 +22,40 @@ $totalUang = 0;
 
 if (isset($_POST["tambahData"])) {
     $judul = clean_input($_POST["judul"]);
-    $nominal = str_replace('.', '', clean_input($_POST["nominal"])); 
+    $nominal_input = clean_input($_POST["nominal"]);
+    $nominal_angka = str_replace('.', '', $nominal_input); // Hapus titik dari format rupiah
+    $nominal_angka = str_replace(',', '.', $nominal_angka); // Ganti koma dengan titik untuk mengonversi ke format angka
     $kategori = clean_input($_POST["kategori"]);
     $keterangan = clean_input($_POST["keterangan"]);
     $jenis = clean_input($_POST["jenis"]);
 
-    $nominalAngka = intval($nominal);
+    $nominalFormatted = number_format($nominal_angka, 0, ',', '.'); // Konversi ke format rupiah untuk ditampilkan
 
-    if ($jenis == 'Pemasukan') {
-        $totalUang += $nominalAngka;
-    } elseif ($jenis == 'Pengeluaran') {
-        $totalUang -= $nominalAngka;
+    // Ambil nilai total uang dari database
+    $sql_select_total_uang = "SELECT nominal FROM finance_total";
+    $result = $conn->query($sql_select_total_uang);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $totalUang = floatval(str_replace('.', '', $row["nominal"])); // Hapus titik dan konversi ke angka float
+    } else {
+        $totalUang = 0;
     }
 
-    $nominalFormatted = number_format($nominalAngka, 0, ',', '.');
+    // Lakukan operasi tambah atau kurang
+    if ($jenis == 'Pemasukan') {
+        $totalUang += $nominal_angka;
+    } elseif ($jenis == 'Pengeluaran') {
+        $totalUang -= $nominal_angka;
+    }
 
-    $totalUangFormatted = number_format($totalUang, 0, ',', '.');
+    $totalUangFormatted = number_format($totalUang, 0, ',', '.'); // Konversi kembali ke format rupiah untuk disimpan di database
 
+    // Simpan total uang yang telah diupdate ke database
     $sql_update_total_uang = "UPDATE finance_total SET nominal = '$totalUangFormatted'";
     $conn->query($sql_update_total_uang);
 
+    // Masukkan data transaksi ke dalam database
     $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '$nominalFormatted', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
     
     if ($conn->query($sql_insert_transaksi) === TRUE) {
@@ -50,9 +64,6 @@ if (isset($_POST["tambahData"])) {
         $error_message = "Error: " . $sql_insert_transaksi . "<br>" . $conn->error;
     }
 }
-
-
-
 
 if (isset($_POST["uangSekarang"])) {
     $nominalBaru = clean_input($_POST["nominalBaru"]);
@@ -134,7 +145,18 @@ if (isset($_POST["uangSekarang"])) {
                                                     <h6 class="font-extrabold mb-0">Total uang kamu 
                                                     </h6>
                                                     <i class="bi-bank2 fs-5 mb-0"></i>
-                                                </div><h6 class='text-secondary'>Rp. <?= $totalUang; ?> </h6>
+                                                    <?php 
+                                                    $sql = "SELECT nominal FROM finance_total";
+                                                    $result = mysqli_query($conn, $sql);
+                                                                                                    
+                                                    if (mysqli_num_rows($result) > 0) {
+                                                    $row = mysqli_fetch_assoc($result);
+                                                    $uangSaya = $row["nominal"];
+                                                    } else {
+                                                    $uangSaya = 0;
+                                                    }
+                                                    ; ?>
+                                                </div><h6 class='text-secondary'>Rp. <?= $uangSaya; ?> </h6>
                                             </div>
                                         </div> 
                                     </div>
