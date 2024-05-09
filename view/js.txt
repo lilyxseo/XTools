@@ -25,4 +25,5 @@
         // Toggle kelas 'no-scroll' pada body saat dropdown dibuka atau ditutup
         document.body.classList.toggle('no-scroll');
     });
+});
     </script>
