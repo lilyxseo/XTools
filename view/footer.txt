@@ -1,7 +1,7 @@
 <footer>
     <div class="footer clearfix mb-0 text-muted">
         <div class="float-start">
-            <p>2024 &copy; Lily. pageload: <span id="pageLoadTime"></span></p>
+            <p>2024 &copy; Lily <span id="pageLoadTime"></span></p>
         </div>
         <div class="float-end">
             <p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
