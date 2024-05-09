@@ -38,7 +38,7 @@ if (isset($_POST['login'])) {
         if (password_verify($password, $user['password'])) {
             // Login berhasil, buat cookie yang unik
             $unique_cookie_value = md5(uniqid($user['id'], true));
-            setcookie('unique_login_cookie', $unique_cookie_value, time() + 86400, '/');
+            setcookie('unique_login_cookie', $unique_cookie_value, time() + 2592000, '/');
             // Cookie akan berakhir dalam 1 jam (3600 detik)
             
              // Tambahkan cookie ke database
