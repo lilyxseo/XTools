@@ -16,4 +16,22 @@
         var pageLoadSpan = document.getElementById('pageLoadTime');
         pageLoadSpan.textContent = loadTime.toLocaleString() + ' ms';
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var dropdownToggle = document.querySelector('.dropdown > a');
+    var dropdownMenu = document.querySelector('.dropdown-menu');
+
+    dropdownToggle.addEventListener('click', function() {
+        // Toggle kelas 'no-scroll' pada body saat dropdown dibuka atau ditutup
+        document.body.classList.toggle('no-scroll');
+    });
+
+    // Event handler untuk menutup dropdown saat mengklik di luar dropdown
+    document.addEventListener('click', function(event) {
+        var isInsideDropdown = dropdownToggle.contains(event.target) || dropdownMenu.contains(event.target);
+        if (!isInsideDropdown) {
+            document.body.classList.remove('no-scroll');
+        }
+    });
+});
     </script>
