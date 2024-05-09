@@ -2,6 +2,69 @@
 include 'menu.php';
 require 'functions.php';
 
+// Fungsi untuk membersihkan input
+function clean_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
+$sql = "SELECT nominal FROM finance_total";
+$result = mysqli_query($conn, $sql);
+                                                
+if (mysqli_num_rows($result) > 0) {
+$row = mysqli_fetch_assoc($result);
+$totalUang = $row["nominal"];
+} else {
+$totalUang = 0;
+}
+
+if (isset($_POST["tambahData"])) {
+    $judul = clean_input($_POST["judul"]);
+    $nominal = str_replace('.', '', clean_input($_POST["nominal"])); 
+    $kategori = clean_input($_POST["kategori"]);
+    $keterangan = clean_input($_POST["keterangan"]);
+    $jenis = clean_input($_POST["jenis"]);
+
+    $nominalAngka = intval($nominal);
+
+    if ($jenis == 'Pemasukan') {
+        $totalUang += $nominalAngka;
+    } elseif ($jenis == 'Pengeluaran') {
+        $totalUang -= $nominalAngka;
+    }
+
+    $nominalFormatted = number_format($nominalAngka, 0, ',', '.');
+
+    $totalUangFormatted = number_format($totalUang, 0, ',', '.');
+
+    $sql_update_total_uang = "UPDATE finance_total SET nominal = '$totalUangFormatted'";
+    $conn->query($sql_update_total_uang);
+
+    $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '$nominalFormatted', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
+    
+    if ($conn->query($sql_insert_transaksi) === TRUE) {
+        $success_message = "Data berhasil ditambahkan";
+    } else {
+        $error_message = "Error: " . $sql_insert_transaksi . "<br>" . $conn->error;
+    }
+}
+
+
+
+
+if (isset($_POST["uangSekarang"])) {
+    $nominalBaru = clean_input($_POST["nominalBaru"]);
+
+    $sql_update = "UPDATE finance_total SET nominal = '$nominalBaru';";
+    if ($conn->query($sql_update) === TRUE) {
+        $success_message = "Data berhasil diubah!";
+    } else {
+        $error_message = "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +79,7 @@ require 'functions.php';
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./assets/compiled/css/table-datatable-jquery.css">
     <link rel="stylesheet" href="assets/extensions/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
     <style>
         .input-group-prepend {
             flex: 0 0 auto;
@@ -61,7 +125,7 @@ require 'functions.php';
                     <div class="col-12 col-lg-8">
                         <div class="row justify-content-center" id="">
                             <!-- Card Uang Tersisa -->
-                            <div class="col-12 col-lg-4 col-md-4 col-xl-4">
+                            <div class="col-12 col-lg-4 col-md-12 col-xl-4">
                                 <div class="card">
                                     <div class="card-body px-4 py-3-5">
                                         <div class="row">
@@ -70,8 +134,7 @@ require 'functions.php';
                                                     <h6 class="font-extrabold mb-0">Total uang kamu 
                                                     </h6>
                                                     <i class="bi-bank2 fs-5 mb-0"></i>
-                                                </div>
-                                                <h6 class="text-secondary">Rp. 3.500.000</h6>
+                                                </div><h6 class='text-secondary'>Rp. <?= $totalUang; ?> </h6>
                                             </div>
                                         </div> 
                                     </div>
@@ -81,16 +144,34 @@ require 'functions.php';
                             <div class="col-6 col-lg-3 col-md-6">
                                 <div class="card">
                                     <div class="card-body px-4 py-3-5">
+                                        <?php 
+                                            $sql = "SELECT IFNULL(SUM(REPLACE(nominal, '.', '') + 0), 0) AS total_nominal
+                                            FROM finance_histori
+                                            WHERE tipe = 'Pemasukan'
+                                            AND MONTH(tanggal) = MONTH(CURRENT_DATE())
+                                            AND YEAR(tanggal) = YEAR(CURRENT_DATE())";
+
+                                            $result = $conn->query($sql);
+
+                                            if ($result->num_rows > 0) {
+                                            $row = $result->fetch_assoc();
+                                            $total_nominal = $row["total_nominal"];
+
+                                            // Tambahkan format rupiah pada total nominal
+                                            $nominal = number_format($total_nominal, 0, ',', '.');
+                                            } else {
+                                            $nominal = 0;
+                                            }
+                                        ?>
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <h6 class="font-extrabold mb-0">Pemasukan 
-                                                    </h6>
+                                                    <h6 class="font-extrabold mb-0">Pemasukan</h6>
                                                     <i class="bi-arrow-up-right text-success fs-5 mb-0"></i>
                                                 </div>
-                                                <h6 class="text-success">Rp. 3.500.000</h6>
+                                                <h6 class="text-success">Rp. <?= $nominal; ?></h6>
                                             </div>
-                                        </div> 
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -98,6 +179,25 @@ require 'functions.php';
                             <div class="col-6 col-lg-3 col-md-6">
                                 <div class="card">
                                     <div class="card-body px-4 py-3-5">
+                                    <?php 
+                                            $sql = "SELECT IFNULL(SUM(REPLACE(nominal, '.', '') + 0), 0) AS total_nominal
+                                            FROM finance_histori
+                                            WHERE tipe = 'Pengeluaran'
+                                            AND MONTH(tanggal) = MONTH(CURRENT_DATE())
+                                            AND YEAR(tanggal) = YEAR(CURRENT_DATE())";
+
+                                            $result = $conn->query($sql);
+
+                                            if ($result->num_rows > 0) {
+                                            $row = $result->fetch_assoc();
+                                            $total_nominal = $row["total_nominal"];
+
+                                            // Tambahkan format rupiah pada total nominal
+                                            $nominal = number_format($total_nominal, 0, ',', '.');
+                                            } else {
+                                            $nominal = 0;
+                                            }
+                                        ?>
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="d-flex justify-content-between align-items-center">
@@ -105,7 +205,7 @@ require 'functions.php';
                                                     </h6>
                                                     <i class="bi-arrow-down-right text-danger fs-5 mb-0"></i>
                                                 </div>
-                                                <h6 class="text-danger">Rp. 3.500.000</h6>
+                                                <h6 class="text-danger">Rp. <?= $nominal; ?></h6>
                                             </div>
                                         </div> 
                                     </div>
@@ -113,7 +213,7 @@ require 'functions.php';
                             </div>
                         </div>
                         <div class="row">
-                            <!-- Chart Statistik -->
+                            <!-- Bar Statistik -->
                             <div class="col-12 col-lg-8">
                                 <div class="card">
                                     <div class="card-header">
@@ -124,10 +224,11 @@ require 'functions.php';
                                     </div>
                                 </div>
                             </div>
+                            <!-- Pie Statistik -->
                             <div class="col-12 col-lg-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Data Pengeluaran</h4>
+                                        <h4>Statistik Pengeluaran</h4>
                                     </div>
                                     <div class="card-body">
                                         <div id="pie"></div>
@@ -136,48 +237,8 @@ require 'functions.php';
                             </div>
                         </div>
                         <div class="row">
-                            <!-- Chart Statistik -->
                             <div class="col-12 col-lg-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4>Tambah data</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <form action="process_data.php" method="POST">
-                                            <div class="mb-3">
-                                                <label for="judul" class="form-label">Judul:</label>
-                                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="nominal" class="form-label">Nominal:</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">Rp.</span>
-                                                    <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="1.000.000" required pattern="[0-9]*" required>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="keterangan" class="form-label">Keterangan:</label>
-                                                <input type="text" class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Jenis:</label>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="jenis" id="pemasukan" value="pemasukan" checked>
-                                                    <label class="form-check-label" for="pemasukan">Pemasukan</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="jenis" id="pengeluaran" value="pengeluaran">
-                                                    <label class="form-check-label" for="pengeluaran">Pengeluaran</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                <button type="submit" class="btn btn-outline-primary me-1 mb-1">Tambah Data</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
+                                <!-- Pilih Tanggal -->
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Pilih Tanggal</h4>
@@ -191,21 +252,91 @@ require 'functions.php';
                                         </form>
                                     </div>
                                 </div>
+                                <!-- Uang saat ini -->
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Uang saat ini</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form method="get">
+                                        <form method="post">
                                             <div class="mb-3">
                                                 <label for="nominal" class="form-label">Nominal:</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp.</span>
-                                                    <input type="text" class="form-control" id="nominal2" name="nominal" placeholder="1.000.000" value="3.500.000" required pattern="[0-9]*" required>
+                                                    <?php 
+                                                    $sql = "SELECT nominal FROM finance_total";
+                                                    $result = mysqli_query($conn, $sql);
+                                                    
+                                                    if (mysqli_num_rows($result) > 0) {
+                                                        $row = mysqli_fetch_assoc($result);
+                                                        $nominal = $row["nominal"];
+                                                    
+                                                        echo "<input type='text' class='form-control' id='nominal2' name='nominalBaru' placeholder='1.000.000' value='$nominal' required pattern='[0-9]+(?:\.[0-9]{1,2})?*' required>";
+                                                    }
+                                                    ; ?>
                                                 </div>
                                                 <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                    <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                    <button type="submit" name="uangSekarang" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
                                                 </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- Tambah kategori -->
+                                <!-- <div class="card">
+                                    <div class="card-header">
+                                        <h4>Tambah Kategori</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="get">
+                                            <input type="text" name="date" class="form-control" placeholder="Makanan..">
+                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <!-- Tambah data -->
+                            <div class="col-12 col-lg-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Tambah data</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="" method="POST">
+                                            <div class="mb-3">
+                                                <label for="judul" class="form-label">Judul:</label>
+                                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="nominal" class="form-label">Nominal:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">Rp.</span>
+                                                    <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="1.000.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="kategori" class="form-label">Kategori:</label>
+                                                <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Investasi">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="keterangan" class="form-label">Keterangan:</label>
+                                                <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" rows="4" cols="30" ></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Jenis:</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="jenis" id="pemasukan" value="Pemasukan" checked>
+                                                    <label class="form-check-label" for="pemasukan">Pemasukan</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="jenis" id="pengeluaran" value="Pengeluaran">
+                                                    <label class="form-check-label" for="pengeluaran">Pengeluaran</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
                                             </div>
                                         </form>
                                     </div>
@@ -232,75 +363,48 @@ require 'functions.php';
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td class="d-none">1</td>
-                                                    <td>
-                                                        <div class="card mb-3">
-                                                            <div class="card-body p-1 pb-0">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col-auto">
-                                                                        <div class="stats-icon bg-success mb-2">
-                                                                            <i class="bi-arrow-up-right fs-4"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <h6 class="mb-0">THR</h6>
-                                                                        <p class="text-muted text-sm mb-1">8 Mei 2024</p>
-                                                                    </div>
-                                                                    <div class="col-auto">
-                                                                        <p class="mb-0 text-success">+ Rp. 700.000</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="d-none">2</td>
-                                                    <td>      
-                                                        <div class="card mb-3">
-                                                            <div class="card-body p-1 pb-0">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col-auto">
-                                                                        <div class="stats-icon bg-danger mb-2">
-                                                                            <i class="bi-arrow-down-right fs-4"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <h6 class="mb-0">Jajan</h6>
-                                                                        <p class="text-muted text-sm mb-1">9 Mei 2024</p>
-                                                                    </div>
-                                                                    <div class="col-auto">
-                                                                        <p class="mb-0 text-danger">- Rp. 100.000</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="d-none">3</td>
-                                                    <td>
-                                                        <div class="card mb-3">
-                                                            <div class="card-body p-1 pb-0">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col-auto">
-                                                                        <div class="stats-icon bg-success mb-2">
-                                                                            <i class="bi-arrow-up-right fs-4"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <h6 class="mb-0">Bonus</h6>
-                                                                        <p class="text-muted text-sm mb-1">9 Mei 2024</p>
-                                                                    </div>
-                                                                    <div class="col-auto">
-                                                                        <p class="mb-0 text-success">+ Rp. 200.000</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                <?php 
+                                                    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe FROM finance_histori";
+                                                    $result = $conn->query($sql);
+
+                                                    if ($result->num_rows > 0) {
+                                                        while($row = $result->fetch_assoc()) {
+                                                            echo '<tr>';
+                                                            echo '<td class="d-none">' . $row['id'] . '</td>';
+                                                            echo '<td>';
+                                                            echo '<div class="card mb-3">';
+                                                            echo '<div class="card-body p-1 pb-0">';
+                                                            echo '<div class="row align-items-center">';
+                                                            echo '<div class="col-auto">';
+                                                            if ($row['tipe'] == 'Pemasukan') {
+                                                                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
+                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
+                                                            }
+                                                            echo '</div>';
+                                                            echo '<div class="col">';
+                                                            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
+                                                            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
+                                                            echo '</div>';
+                                                            echo '<div class="col-auto">';
+                                                            echo '<p class="mb-0 ';
+                                                             if ($row['tipe'] == 'Pemasukan') {
+                                                                echo 'text-success">+ Rp. ' . $row['nominal'];
+                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                                echo 'text-danger">- Rp. ' . $row['nominal'];
+                                                            }
+                                                            echo '</p>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</td>';
+                                                            echo '</tr>';
+                                                        }
+                                                    } else {
+                                                        echo "0 hasil";
+                                                    }
+                                                ; ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -318,6 +422,23 @@ require 'functions.php';
     <?php include'view/js.txt'?>
     
     <!-- Custom JS -->
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        <?php
+        // Tampilkan pesan kesalahan jika ada
+        if (isset($error_message)) {
+            echo "swal('Error', '$error_message', 'error');";
+        }
+
+        // Tampilkan pesan sukses jika ada
+        if (isset($success_message)) {
+            echo "Swal.fire({
+                title: '$success_message',
+                icon: 'success'
+              });";
+        }
+        ?>
+    </script>
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="assets/extensions/flatpickr/flatpickr.min.js"></script>
     <script src="assets/extensions/jquery/jquery.min.js"></script>
@@ -412,48 +533,46 @@ require 'functions.php';
         };
         var pie = new ApexCharts(document.querySelector("#pie"), options);
 
-            pie.render();
-            bar.render();
+        pie.render();
+        bar.render();
 
 
-            flatpickr('.flatpickr-range', {
-            dateFormat: "Y-m-d", 
-            mode: 'range',
-            maxDate: "today"
+        flatpickr('.flatpickr-range', {
+        dateFormat: "Y-m-d", 
+        mode: 'range',
+        maxDate: "today"
         })
 
-    var nominal1 = document.getElementById('nominal1');
-    nominal1.addEventListener('keyup', function(e)
-    {
-        nominal1.value = formatRupiah(this.value);
-    });
-    var nomninal2 = document.getElementById('nominal2');
-    nomninal2.addEventListener('keyup', function(e)
-    {
-        nomninal2.value = formatRupiah(this.value);
-    });
-    /* Fungsi */
-    function formatRupiah(angka, prefix) {
-    var number_string = angka.replace(/[^,\d]/g, '').toString(),
-        split = number_string.split(','),
-        sisa = split[0].length % 3,
-        rupiah = split[0].substr(0, sisa),
-        ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+        var nominal1 = document.getElementById('nominal1');
+        nominal1.addEventListener('keyup', function(e)
+        {
+            nominal1.value = formatRupiah(this.value);
+        });
+        var nomninal2 = document.getElementById('nominal2');
+        nomninal2.addEventListener('keyup', function(e)
+        {
+            nomninal2.value = formatRupiah(this.value);
+        });
+        /* Fungsi */
+        function formatRupiah(angka, prefix) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-    if (ribuan) {
-        separator = sisa ? '.' : '';
-        rupiah += separator + ribuan.join('.');
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        // Menambahkan pemisah ribuan untuk jutaan, miliaran, dan seterusnya
+        for (var i = 1; i < split.length; i++) {
+            rupiah += ',' + split[i];
+        }
+
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
     }
-
-    // Menambahkan pemisah ribuan untuk jutaan, miliaran, dan seterusnya
-    for (var i = 1; i < split.length; i++) {
-        rupiah += ',' + split[i];
-    }
-
-    return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
-}
-
     </script>
 </body>
-
 </html>
