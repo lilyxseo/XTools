@@ -2,7 +2,48 @@
 include 'menu.php';
 require 'functions.php';
 
-// Fungsi untuk membersihkan input
+$thisMonth = date('Y-m-01');
+
+$dateInput = isset($_GET['q']) ? $_GET['q'] : $thisMonth;
+
+$parts = explode('-to-', $dateInput);
+
+if (count($parts) == 2) {
+    $days1 = intval($parts[0]);
+    $days2 = intval($parts[1]);
+    $startDate = date('Y-m-d', strtotime("-$days1 days"));
+    $endDate = date('Y-m-d', strtotime("-$days2 days"));
+    $date = "$startDate to $endDate";
+} else if (preg_match('/^\d+d$/', $dateInput)) {
+    $days = intval($dateInput);
+    $date = date('Y-m-d', strtotime("-$days days"));
+} else {
+    $date = "Invalid format";
+}
+
+if(isset($_GET['selectDate'])) {
+    $dateInput = $_GET['date'];
+
+    if (strpos($dateInput, ' to ') !== false) {
+        list($startDate, $endDate) = explode(" to ", $dateInput);
+
+        $today = date("Y-m-d");
+        $differenceInStart = date_diff(date_create($today), date_create($startDate))->format('%a');
+        $differenceInEnd = date_diff(date_create($today), date_create($endDate))->format('%a');
+
+        $redirectURL = '?q=' . $differenceInStart . 'd-to-' . $differenceInEnd . 'd';
+    } else {
+        $today = date("Y-m-d");
+        $differenceInDays = date_diff(date_create($today), date_create($dateInput))->format('%a');
+
+        $redirectURL = '?q=' . $differenceInDays . 'd';
+    }
+
+    header('Location: ' . $redirectURL);
+    exit();
+}
+
+
 function clean_input($data) {
     $data = trim($data);
     $data = stripslashes($data);
@@ -269,7 +310,7 @@ if (isset($_POST["uangSekarang"])) {
                                         <form method="get">
                                             <input type="text" name="date" class="form-control flatpickr-range mb-3 flatpickr-input" placeholder="Select date.." readonly="readonly">
                                             <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                <button type="submit" name="site_submit" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                <button type="submit" name="selectDate" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
                                             </div>
                                         </form>
                                     </div>
@@ -385,48 +426,57 @@ if (isset($_POST["uangSekarang"])) {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php 
-                                                    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe FROM finance_histori";
-                                                    $result = $conn->query($sql);
+                                            <?php 
+    // Tentukan tanggal yang akan digunakan dalam query
+    $dateInput = isset($_GET['q']) ? $_GET['q'] : date('Y-m-01');
 
-                                                    if ($result->num_rows > 0) {
-                                                        while($row = $result->fetch_assoc()) {
-                                                            echo '<tr>';
-                                                            echo '<td class="d-none">' . $row['id'] . '</td>';
-                                                            echo '<td>';
-                                                            echo '<div class="card mb-3">';
-                                                            echo '<div class="card-body p-1 pb-0">';
-                                                            echo '<div class="row align-items-center">';
-                                                            echo '<div class="col-auto">';
-                                                            if ($row['tipe'] == 'Pemasukan') {
-                                                                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
-                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
-                                                                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
-                                                            }
-                                                            echo '</div>';
-                                                            echo '<div class="col">';
-                                                            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
-                                                            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
-                                                            echo '</div>';
-                                                            echo '<div class="col-auto">';
-                                                            echo '<p class="mb-0 ';
-                                                             if ($row['tipe'] == 'Pemasukan') {
-                                                                echo 'text-success">+ Rp. ' . $row['nominal'];
-                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
-                                                                echo 'text-danger">- Rp. ' . $row['nominal'];
-                                                            }
-                                                            echo '</p>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</td>';
-                                                            echo '</tr>';
-                                                        }
-                                                    } else {
-                                                        echo "0 hasil";
-                                                    }
-                                                ; ?>
+    // Buat query SQL dengan mengganti bagian tanggal dengan variabel $dateInput
+    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+            FROM finance_histori
+            WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput'";
+    
+    // Jalankan query
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            echo '<tr>';
+            echo '<td class="d-none">' . $row['id'] . '</td>';
+            echo '<td>';
+            echo '<div class="card mb-3">';
+            echo '<div class="card-body p-1 pb-0">';
+            echo '<div class="row align-items-center">';
+            echo '<div class="col-auto">';
+            if ($row['tipe'] == 'Pemasukan') {
+                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
+            } elseif ($row['tipe'] == 'Pengeluaran') {
+                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
+            }
+            echo '</div>';
+            echo '<div class="col">';
+            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
+            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
+            echo '</div>';
+            echo '<div class="col-auto">';
+            echo '<p class="mb-0 ';
+            if ($row['tipe'] == 'Pemasukan') {
+                echo 'text-success">+ Rp. ' . $row['nominal'];
+            } elseif ($row['tipe'] == 'Pengeluaran') {
+                echo 'text-danger">- Rp. ' . $row['nominal'];
+            }
+            echo '</p>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</td>';
+            echo '</tr>';
+        }
+    } else {
+        echo "0 hasil";
+    }
+?>
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -525,12 +575,12 @@ if (isset($_POST["uangSekarang"])) {
         var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
 
         var options = {
-          series: [25, 15, 44, 55, 41, 17, 12],
+          series: [25, 15, 44],
           chart: {
           width: '100%',
           type: 'pie',
         },
-        labels: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+        labels: ["Jajan", "Modif", "Kebutuhan"],
         theme: {
           monochrome: {
             enabled: true
