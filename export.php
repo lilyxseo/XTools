@@ -200,6 +200,7 @@ if(isset($_POST["export"])) {
                     </div>
                 </div>
             </div>
+            
             <?php include 'view/footer.txt'?>
         </div>
     </div>

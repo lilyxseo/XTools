@@ -192,9 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <?php include 'view/footer.txt' ?>
                 </div>
             </div>
+            <?php include 'view/footer.txt' ?>
         </div>
     </div>
     <?php include'view/js.txt'?>

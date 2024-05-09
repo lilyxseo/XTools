@@ -281,8 +281,8 @@ require 'functions.php';
                     </div>
                     </div>
                 </section>
-                <?php include'view/footer.txt'; ?>
             </div>
+            <?php include'view/footer.txt'; ?>
         </div>
     </div>
     <?php include'view/js.txt'?>
