@@ -176,7 +176,7 @@ if (isset($_POST['upload'])) {
                                                             <tr>
                                                                 <td><?php echo $index; ?></td>
                                                                 <td><?php echo $fileInfo['filename']; ?></td>
-                                                                <td><?php echo date("Y-m-d H:i:s", filemtime($filePath)); ?></td>
+                                                                <td><?php echo date("Y-m-d", filemtime($filePath)); ?></td>
                                                                 <td><span class="badge" style="background-color: <?php echo $fileTypeBadgeColor; ?>"><?php echo $fileType; ?></span></td>
                                                                 <td>
                                                                     <a href="<?php echo $filePath; ?>" download class="btn icon icon-left btn-outline-primary me-2 text-nowrap">
@@ -248,21 +248,30 @@ if (isset($_POST['upload'])) {
     <script src="assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="assets/static/js/pages/datatables.js"></script>
     <script>
-    $(document).ready(function() {
-        // Hancurkan DataTable sebelum inisialisasi baru
-        if ($.fn.DataTable.isDataTable('#table1')) {
-            $('#table1').DataTable().destroy();
-        }
+$(document).ready(function() {
+    // Hancurkan DataTable sebelum inisialisasi baru
+    if ($.fn.DataTable.isDataTable('#table1')) {
+        $('#table1').DataTable().destroy();
+    }
 
-        // Inisialisasi DataTables
-        $('#table1').DataTable({
-            "columnDefs": [
-                { "type": "date", "targets": 2 } // Menggunakan tipe data "date" untuk kolom ke-3 (indeks 2)
-            ],
-            "order": [[ 2, "desc" ]] // Mengurutkan berdasarkan kolom ke-3 (indeks 2) secara descending
-            // konfigurasi DataTable lainnya
-        });
+    // Inisialisasi DataTables
+    $('#table1').DataTable({
+        "columnDefs": [
+            { "type": "date", "targets": 2 } // Menggunakan tipe data "date" untuk kolom ke-3 (indeks 2)
+        ],
+        "order": [[ 2, "desc" ]] // Mengurutkan berdasarkan kolom ke-3 (indeks 2) secara descending
+        // konfigurasi DataTable lainnya
     });
+
+    // Reset variabel index
+    var index = 0;
+
+    // Perbarui nomor urut
+    $('#table1 tbody tr').each(function() {
+        index++;
+        $(this).find('td:first').text(index);
+    });
+});
     </script>
 </body>
 
