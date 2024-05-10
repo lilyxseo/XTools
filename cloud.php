@@ -70,6 +70,8 @@ if (isset($_POST['upload'])) {
     <link rel="stylesheet" href="assets/extensions/filepond/filepond.css">
     <link rel="stylesheet" href="assets/extensions/filepond-plugin-image-preview/filepond-plugin-image-preview.css">
     <link rel="stylesheet" href="assets/extensions/toastify-js/src/toastify.css">
+    <link rel="stylesheet" href="assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="./assets/compiled/css/table-datatable-jquery.css">
 
     <!-- Meta Tag -->
     <?php include 'view/meta.txt'?>
@@ -230,6 +232,7 @@ if (isset($_POST['upload'])) {
     <?php include'view/js.txt'?>
     
     <!-- Custom JS -->
+
     <script src="assets/extensions/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
     <script src="assets/extensions/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
     <script src="assets/extensions/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
@@ -240,6 +243,27 @@ if (isset($_POST['upload'])) {
     <script src="assets/extensions/filepond/filepond.js"></script>
     <script src="assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="assets/static/js/pages/filepond.js"></script>
+    <script src="assets/extensions/jquery/jquery.min.js"></script>
+    <script src="assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="assets/static/js/pages/datatables.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Hancurkan DataTable sebelum inisialisasi baru
+        if ($.fn.DataTable.isDataTable('#table1')) {
+            $('#table1').DataTable().destroy();
+        }
+
+        // Inisialisasi DataTables
+        $('#table1').DataTable({
+            "columnDefs": [
+                { "type": "date", "targets": 2 } // Menggunakan tipe data "date" untuk kolom ke-3 (indeks 2)
+            ],
+            "order": [[ 2, "desc" ]] // Mengurutkan berdasarkan kolom ke-3 (indeks 2) secara descending
+            // konfigurasi DataTable lainnya
+        });
+    });
+    </script>
 </body>
 
 </html>
