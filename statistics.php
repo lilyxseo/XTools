@@ -117,6 +117,76 @@ if (isset($_POST["uangSekarang"])) {
     }
 }
 
+
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
+$result = $conn->query($sql);
+
+// Memeriksa apakah ada hasil dari query
+if ($result->num_rows > 0) {
+  // Inisialisasi array untuk menyimpan data label
+  $labelsFromDatabase = array();
+
+  // Mendapatkan hasil query satu per satu
+  while ($row = $result->fetch_assoc()) {
+    // Mengubah huruf besar pertama di setiap kata
+    $kategori = ucwords($row["kategori"]);
+
+    // Menambahkan data label ke array jika belum ada
+    if (!in_array($kategori, $labelsFromDatabase)) {
+      $labelsFromDatabase[] = $kategori;
+    }
+  }
+
+  // Mengkonversi array ke format JSON untuk digunakan di JavaScript
+  $labelsJSON = json_encode($labelsFromDatabase);
+} else {
+  // Jika tidak ada hasil dari query
+  echo "Tidak ada data yang ditemukan.";
+}
+
+
+
+// Mengambil data nominal dari database
+$sql = "SELECT kategori, nominal FROM finance_histori WHERE tipe = 'Pengeluaran'";
+$result = $conn->query($sql);
+
+// Memeriksa apakah ada hasil dari query
+if ($result->num_rows > 0) {
+    // Inisialisasi array untuk menyimpan total nominal
+    $totalNominals = array();
+
+    // Mendapatkan hasil query satu per satu
+    while ($row = $result->fetch_assoc()) {
+        // Menghilangkan karakter pemisah dan mengonversi ke tipe data float
+        $nominal = floatval(str_replace(',', '', str_replace('.', '', $row["nominal"])));
+        
+        // Mengubah huruf besar pertama di setiap kata kategori
+        $kategori = ucwords($row["kategori"]);
+
+        // Menambahkan nominal ke kategori yang sama atau membuat entri baru jika belum ada
+        if (array_key_exists($kategori, $totalNominals)) {
+            $totalNominals[$kategori] += $nominal;
+        } else {
+            $totalNominals[$kategori] = $nominal;
+        }
+    }
+
+    // Mengonversi nilai nominal ke format rupiah tanpa tanda petik
+    foreach ($totalNominals as $key => $value) {
+        // Mengonversi nilai menjadi pecahan dengan dua desimal
+        $totalNominals[$key] = round($value, 2);
+    }
+
+    // Mengonversi array ke format array numerik untuk digunakan di JavaScript
+    $totalNominalsJSON = json_encode(array_values($totalNominals));
+} else {
+    // Jika tidak ada hasil dari query
+    echo "Tidak ada data yang ditemukan.";
+}
+
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -592,15 +662,15 @@ if (isset($_POST["uangSekarang"])) {
             },
         },
         };
-        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
+        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);   
 
         var options = {
-          series: [25, 15, 44],
+          series: <?= $totalNominalsJSON; ?>,
           chart: {
           width: '100%',
           type: 'pie',
         },
-        labels: ["Jajan", "Modif", "Kebutuhan"],
+        labels: <?= $labelsJSON; ?>,
         theme: {
           monochrome: {
             enabled: true
