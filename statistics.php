@@ -427,56 +427,76 @@ if (isset($_POST["uangSekarang"])) {
                                             </thead>
                                             <tbody>
                                             <?php 
-    // Tentukan tanggal yang akan digunakan dalam query
-    $dateInput = isset($_GET['q']) ? $_GET['q'] : date('Y-m-01');
+                                            $dateInput = isset($_GET['q']) ? $_GET['q'] : date('Y-m-d');
 
-    // Buat query SQL dengan mengganti bagian tanggal dengan variabel $dateInput
-    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
-            FROM finance_histori
-            WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput'";
-    
-    // Jalankan query
-    $result = $conn->query($sql);
+                                            $parts = explode('-to-', $dateInput);
 
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            echo '<tr>';
-            echo '<td class="d-none">' . $row['id'] . '</td>';
-            echo '<td>';
-            echo '<div class="card mb-3">';
-            echo '<div class="card-body p-1 pb-0">';
-            echo '<div class="row align-items-center">';
-            echo '<div class="col-auto">';
-            if ($row['tipe'] == 'Pemasukan') {
-                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
-            } elseif ($row['tipe'] == 'Pengeluaran') {
-                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
-            }
-            echo '</div>';
-            echo '<div class="col">';
-            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
-            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
-            echo '</div>';
-            echo '<div class="col-auto">';
-            echo '<p class="mb-0 ';
-            if ($row['tipe'] == 'Pemasukan') {
-                echo 'text-success">+ Rp. ' . $row['nominal'];
-            } elseif ($row['tipe'] == 'Pengeluaran') {
-                echo 'text-danger">- Rp. ' . $row['nominal'];
-            }
-            echo '</p>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</td>';
-            echo '</tr>';
-        }
-    } else {
-        echo "0 hasil";
-    }
-?>
+                                            if (count($parts) == 2) {
+                                                $startDate = date('Y-m-d', strtotime($parts[0]));
+                                                $endDate = date('Y-m-d', strtotime($parts[1]));
+                                                $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                        FROM finance_histori
+                                                        WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate'";
+                                            } else if (preg_match('/^(\d+)d$/', $dateInput, $matches)) {
+                                                $days = intval($matches[1]);
+                                                if ($days > 0) {
+                                                    $endDate = date('Y-m-d', strtotime("-1 days"));
+                                                    $startDate = date('Y-m-d', strtotime("-$days days"));
+                                                    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                            FROM finance_histori
+                                                            WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate'";
+                                                } else {
+                                                    $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                            FROM finance_histori
+                                                            WHERE DATE(tanggal) = CURDATE()";
+                                                }
+                                            } else {
+                                                $dateInput = date('Y-m-01', strtotime($dateInput));
+                                                $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                        FROM finance_histori
+                                                        WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput'";
+                                            }
 
+                                                    $result = $conn->query($sql);
+
+                                                    if ($result->num_rows > 0) {
+                                                        while($row = $result->fetch_assoc()) {
+                                                            echo '<tr>';
+                                                            echo '<td class="d-none">' . $row['id'] . '</td>';
+                                                            echo '<td>';
+                                                            echo '<div class="card mb-3">';
+                                                            echo '<div class="card-body p-1 pb-0">';
+                                                            echo '<div class="row align-items-center">';
+                                                            echo '<div class="col-auto">';
+                                                            if ($row['tipe'] == 'Pemasukan') {
+                                                                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
+                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
+                                                            }
+                                                            echo '</div>';
+                                                            echo '<div class="col">';
+                                                            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
+                                                            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
+                                                            echo '</div>';
+                                                            echo '<div class="col-auto">';
+                                                            echo '<p class="mb-0 ';
+                                                            if ($row['tipe'] == 'Pemasukan') {
+                                                                echo 'text-success">+ Rp. ' . $row['nominal'];
+                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                                echo 'text-danger">- Rp. ' . $row['nominal'];
+                                                            }
+                                                            echo '</p>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</div>';
+                                                            echo '</td>';
+                                                            echo '</tr>';
+                                                        }
+                                                    } else {
+                                                        echo "0 hasil";
+                                                    }
+                                                ?>
                                             </tbody>
                                         </table>
                                     </div>
