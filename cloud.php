@@ -5,6 +5,9 @@ require 'functions.php';
 // Inisialisasi variabel pesan
 $errorMessage = '';
 $successMessage = '';
+// Inisialisasi variabel pesan
+$errorMessage1 = '';
+$successMessage1 = '';
 
 // Pastikan tombol upload ditekan
 if (isset($_POST['upload'])) {
@@ -51,6 +54,33 @@ if (isset($_POST['upload'])) {
             // Tangani kesalahan pengunggahan file
             $errorMessage .= "Error uploading file: $fileName <br>";
         }
+    }
+}
+
+
+// Pastikan request yang diterima adalah POST dan tombol "rename" telah ditekan
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["rename"])) {
+    // Periksa apakah input newFileName ada dalam request
+    if (isset($_POST["newFileName"])) {
+        // Simpan nama file baru dari input form
+        $newFileName = $_POST["newFileName"];
+
+        // Periksa apakah input oldFileName ada dalam request
+        if (isset($_POST["oldFileName"])) {
+            // Simpan nama file lama
+            $oldFileName = $_POST["oldFileName"];
+
+            // Lakukan penggantian nama file
+            if (rename("uploads/$username/" . $oldFileName, "uploads/$username/" . $newFileName)) {
+                $successMessage1 .= "Nama file berhasil diubah.";
+            } else {
+                $errorMessage1 .= "Gagal mengubah nama file.";
+            }
+        } else {
+            $errorMessage1 .= "Nama file lama tidak ditemukan.";
+        }
+    } else {
+        $errorMessage1 .= "Nama file baru tidak ditemukan dalam permintaan.";
     }
 }
 ?>
@@ -143,15 +173,21 @@ if (isset($_POST['upload'])) {
                                 </h5>
                             </div>
                             <div class="card-body">
+                            <?php if (!empty($errorMessage1)) : ?>
+                                    <div class="alert alert-danger"><?php echo $errorMessage1; ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($successMessage1)) : ?>
+                                    <div class="alert alert-success"><?php echo $successMessage1; ?></div>
+                                <?php endif; ?>
                                 <div class="table-responsive">
-                                    <table class="table" id="table1">
+                                    <table class="table" id="table2">
                                         <thead>
                                             <tr>
                                                 <th>No.</th>
                                                 <th>Nama File</th>
                                                 <th>Tanggal Upload</th>
                                                 <th>Type</th>
-                                                <th>Action</th>
+                                                <th class="text-center">Action <span class="invisible">LilyXploittt</span></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -185,9 +221,42 @@ if (isset($_POST['upload'])) {
                                                                     <a href="<?php echo $filePath; ?>" class="btn icon icon-left btn-outline-warning me-2 text-nowrap">
                                                                         <i class="bi bi-eye"></i> 
                                                                     </a>
+                                                                    <button type="button" name="edit" class="btn icon icon-left btn btn-outline-info me-2" data-bs-toggle="modal" data-bs-target="#editFileModal-<?php echo $index; ?>">
+                                                                        <i class="bi bi-pencil"></i> 
+                                                                    </button>
                                                                     <button type="button" name="delete" class="btn icon icon-left btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-<?php echo $index; ?>">
                                                                         <i class="bi bi-trash"></i> 
                                                                     </button>
+                                                                    <!-- Modal for Edit File -->
+                                                                    <div class="modal fade text-left" id="editFileModal-<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="editFileModalLabel-<?php echo $index; ?>" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title" id="editFileModalLabel-<?php echo $index; ?>">Edit Nama File</h5>
+                                                                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <!-- Form for editing file name -->
+                                                                                    <!-- You can add input fields and form elements here -->
+                                                                                    <form action="" method="POST">
+                                                                                        <div class="mb-3">
+                                                                                            <label for="newFileName" class="form-label">Nama File Baru:</label>
+                                                                                            <input type="text" class="form-control" id="newFileName" name="newFileName" placeholder="Masukkan nama file baru" required value="<?php echo $file; ?>">
+                                                                                        </div>
+                                                                                        <input type="hidden" name="oldFileName" value="<?php echo $file; ?>">
+                                                                                        <div class="modal-footer">
+                                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                                                            <button type="buttoon" name="rename" class="btn btn-primary">Simpan</button>
+                                                                                        </div>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- End of Modal for Edit File -->
+                                                                    <!-- Modal for Delete Confirmation -->
                                                                     <div class="modal fade text-left" id="confirmDeleteModal-<?php echo $index; ?>" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel-<?php echo $index; ?>" aria-hidden="true">
                                                                         <div class="modal-dialog modal-dialog-centered" role="document">
                                                                             <div class="modal-content">
@@ -207,6 +276,7 @@ if (isset($_POST['upload'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <!-- End of Modal for Delete Confirmation -->
                                                                 </td>
                                                             </tr>
                                                             <?php
