@@ -2,6 +2,13 @@
 include 'menu.php';
 require 'functions.php';
 
+$uploadDirectory = "uploads/";
+
+// Buat direktori sesuai dengan nama pengguna jika belum ada
+if (!file_exists($uploadDirectory . $username)) {
+    mkdir($uploadDirectory . $username, 0777, true);
+}
+
 // Inisialisasi variabel pesan
 $errorMessage = '';
 $successMessage = '';
@@ -11,13 +18,8 @@ $successMessage1 = '';
 
 // Pastikan tombol upload ditekan
 if (isset($_POST['upload'])) {
-    // Tentukan direktori penyimpanan file berdasarkan username
-    $uploadDirectory = 'uploads/';
 
-    // Buat direktori sesuai dengan nama pengguna jika belum ada
-    if (!file_exists($uploadDirectory . $username)) {
-        mkdir($uploadDirectory . $username, 0777, true);
-    }
+    $uploadDirectory = "uploads/";
 
     // Loop melalui setiap file yang diunggah
     foreach ($_FILES['file']['name'] as $key => $fileName) {
@@ -192,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["rename"])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $uploadDirectory = 'uploads/';
+                                            $uploadDirectory = "uploads/";
                                             $users = scandir($uploadDirectory);
                                             $index = 0;
                                             foreach ($users as $user) {
@@ -280,7 +282,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["rename"])) {
                                                                 </td>
                                                             </tr>
                                                             <?php
-                                                        }
+                                                        } 
                                                     }
                                                 }
                                             }
