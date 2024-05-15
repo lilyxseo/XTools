@@ -186,6 +186,31 @@ if ($result->num_rows > 0) {
 
 
 
+// Fetch categories from database for Pengeluaran
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
+$result = $conn->query($sql);
+
+$pengeluaran = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
+        $row['kategori'] = ucwords(strtolower($row['kategori']));
+        $pengeluaran[] = $row;
+    }
+}
+
+// Fetch categories from database for Pemasukan
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan'";
+$result = $conn->query($sql);
+
+$pemasukan = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
+        $row['kategori'] = ucwords(strtolower($row['kategori']));
+        $pemasukan[] = $row;
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -393,7 +418,7 @@ if ($result->num_rows > 0) {
                                     <div class="card-body">
                                         <form method="post">
                                             <div class="mb-3">
-                                                <label for="nominal" class="form-label">Nominal:</label>
+                                                <label for="nominal2" class="form-label">Nominal:</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text">Rp.</span>
                                                     <?php 
@@ -434,44 +459,83 @@ if ($result->num_rows > 0) {
                             <div class="col-12 col-lg-6">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Tambah data</h4>
+                                        <h4>Tambah Data</h4>
                                     </div>
                                     <div class="card-body">
-                                        <form action="" method="POST">
-                                            <div class="mb-3">
-                                                <label for="judul" class="form-label">Judul:</label>
-                                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
+                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="pemasukan-tab" data-bs-toggle="tab" data-bs-target="#pemasukan-tab-pane" type="button" role="tab" aria-controls="pemasukan-tab-pane" aria-selected="true">Pemasukan</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="pengeluaran-tab" data-bs-toggle="tab" data-bs-target="#pengeluaran-tab-pane" type="button" role="tab" aria-controls="pengeluaran-tab-pane" aria-selected="false">Pengeluaran</button>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="myTabContent">
+                                            <!-- Pemasukan Tab -->
+                                            <div class="tab-pane fade show active" id="pemasukan-tab-pane" role="tabpanel" aria-labelledby="pemasukan-tab">
+                                                <form action="" method="POST">
+                                                    <div class="mb-3 mt-3">
+                                                        <label for="judul" class="form-label">Judul:</label>
+                                                        <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nominal1" class="form-label">Nominal:</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text">Rp.</span>
+                                                            <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="kategori" class="form-label">Kategori:</label>
+                                                        <select class="form-control" id="kategori" name="kategori">
+                                                            <?php foreach($pemasukan as $pemasukans): ?>
+                                                                <option value="<?= $pemasukans['kategori']; ?>"><?= $pemasukans['kategori']; ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="keterangan" class="form-label">Keterangan:</label>
+                                                        <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" rows="4" cols="30"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="jenis" value="Pemasukan">
+                                                    <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                        <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="nominal" class="form-label">Nominal:</label>
-                                                <div class="input-group">
-                                                    <span class="input-group-text">Rp.</span>
-                                                    <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="1.000.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
-                                                </div>
+                                            <!-- Pengeluaran Tab -->
+                                            <div class="tab-pane fade" id="pengeluaran-tab-pane" role="tabpanel" aria-labelledby="pengeluaran-tab">
+                                                <form action="" method="POST">
+                                                    <div class="mb-3 mt-3">
+                                                        <label for="judul" class="form-label">Judul:</label>
+                                                        <input type="text" class="form-control" id="judul" name="judul" placeholder="Belanja" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nominal3" class="form-label">Nominal:</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text">Rp.</span>
+                                                            <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="1.000.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="kategori" class="form-label">Kategori:</label>
+                                                        <select class="form-control" id="kategori" name="kategori">
+                                                            <?php foreach($pengeluaran as $pengeluarans): ?>
+                                                                <option value="<?= $pengeluarans['kategori']; ?>"><?= $pengeluarans['kategori']; ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="keterangan" class="form-label">Keterangan:</label>
+                                                        <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Belanja bulanan" rows="4" cols="30"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="jenis" value="Pengeluaran">
+                                                    <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                        <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="kategori" class="form-label">Kategori:</label>
-                                                <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Investasi">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="keterangan" class="form-label">Keterangan:</label>
-                                                <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" rows="4" cols="30" ></textarea>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Jenis:</label>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="jenis" id="pemasukan" value="Pemasukan" checked>
-                                                    <label class="form-check-label" for="pemasukan">Pemasukan</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="jenis" id="pengeluaran" value="Pengeluaran">
-                                                    <label class="form-check-label" for="pengeluaran">Pengeluaran</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                                <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
-                                            </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -506,7 +570,7 @@ if ($result->num_rows > 0) {
                                                 $endDate = date('Y-m-d', strtotime($parts[1]));
                                                 $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                         FROM finance_histori
-                                                        WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate'";
+                                                        WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate' ORDER BY id DESC";
                                             } else if (preg_match('/^(\d+)d$/', $dateInput, $matches)) {
                                                 $days = intval($matches[1]);
                                                 if ($days > 0) {
@@ -514,17 +578,17 @@ if ($result->num_rows > 0) {
                                                     $startDate = date('Y-m-d', strtotime("-$days days"));
                                                     $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                             FROM finance_histori
-                                                            WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate'";
+                                                            WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate' ORDER BY id DESC";
                                                 } else {
                                                     $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                             FROM finance_histori
-                                                            WHERE DATE(tanggal) = CURDATE()";
+                                                            WHERE DATE(tanggal) = CURDATE() ORDER BY id DESC";
                                                 }
                                             } else {
                                                 $dateInput = date('Y-m-01', strtotime($dateInput));
                                                 $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                         FROM finance_histori
-                                                        WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput'";
+                                                        WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput' ORDER BY id DESC";
                                             }
 
                                                     $result = $conn->query($sql);
@@ -606,7 +670,6 @@ if ($result->num_rows > 0) {
     <script src="assets/extensions/jquery/jquery.min.js"></script>
     <script src="assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="assets/static/js/pages/datatables.js"></script>
     <script>
         var barOptions = {
         series: [
@@ -704,7 +767,8 @@ if ($result->num_rows > 0) {
         mode: 'range',
         maxDate: "today"
         })
-
+    </script>
+    <script>
         var nominal1 = document.getElementById('nominal1');
         nominal1.addEventListener('keyup', function(e)
         {
@@ -714,6 +778,11 @@ if ($result->num_rows > 0) {
         nomninal2.addEventListener('keyup', function(e)
         {
             nomninal2.value = formatRupiah(this.value);
+        });
+        var nomninal3 = document.getElementById('nominal3');
+        nomninal3.addEventListener('keyup', function(e)
+        {
+            nomninal3.value = formatRupiah(this.value);
         });
         /* Fungsi */
         function formatRupiah(angka, prefix) {
@@ -735,6 +804,44 @@ if ($result->num_rows > 0) {
 
         return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
     }
+    </script>
+    <script>
+        let jquery_datatable = $("#table1").DataTable({
+        responsive: true
+    });
+
+    let customized_datatable = $("#table2").DataTable({
+        responsive: true,
+        pagingType: 'simple',
+        dom:
+            "<'row'<'col-3'l><'col-9'f>>" +
+            "<'row dt-row'<'col-sm-12'tr>>" +
+            "<'row'<'col-4'i><'col-8'p>>",
+        language: {
+            info: "Page _PAGE_ of _PAGES_",
+            lengthMenu: "_MENU_ ",
+            search: "",
+            searchPlaceholder: "Search.."
+        }
+    });
+
+    const setTableColor = () => {
+        document.querySelectorAll('.dataTables_paginate .pagination').forEach(dt => {
+            dt.classList.add('pagination-primary');
+        });
+    };
+
+    const reverseTableData = () => {
+        // Memanggil fungsi DataTables 'order' untuk membalikkan urutan data berdasarkan ID secara descending
+        customized_datatable.order([0, 'desc']).draw();
+    };
+
+    setTableColor();
+    jquery_datatable.on('draw', setTableColor);
+    customized_datatable.on('draw', setTableColor);
+
+    // Memanggil fungsi untuk membalikkan data tabel
+    reverseTableData();
     </script>
 </body>
 </html>
