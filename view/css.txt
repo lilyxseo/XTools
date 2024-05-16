@@ -2,14 +2,3 @@
 <link rel="shortcut icon" href="./assets/compiled/png/x.png" type="image/x-icon">
 <link rel="stylesheet" href="./assets/compiled/css/app.css">
 <link rel="stylesheet" href="./assets/compiled/css/app-dark.css">
-
-<!-- <style>
-    .footer {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        padding: 0 2rem;
-        z-index: -1000;
-    }
-</style> -->

@@ -64,39 +64,35 @@ $totalUang = 0;
 if (isset($_POST["tambahData"])) {
     $judul = clean_input($_POST["judul"]);
     $nominal_input = clean_input($_POST["nominal"]);
-    $nominal_angka = str_replace('.', '', $nominal_input); // Hapus titik dari format rupiah
-    $nominal_angka = str_replace(',', '.', $nominal_angka); // Ganti koma dengan titik untuk mengonversi ke format angka
+    $nominal_angka = str_replace('.', '', $nominal_input);
+    $nominal_angka = str_replace(',', '.', $nominal_angka);
     $kategori = clean_input($_POST["kategori"]);
     $keterangan = clean_input($_POST["keterangan"]);
     $jenis = clean_input($_POST["jenis"]);
 
-    $nominalFormatted = number_format($nominal_angka, 0, ',', '.'); // Konversi ke format rupiah untuk ditampilkan
+    $nominalFormatted = number_format($nominal_angka, 0, ',', '.');
 
-    // Ambil nilai total uang dari database
     $sql_select_total_uang = "SELECT nominal FROM finance_total";
     $result = $conn->query($sql_select_total_uang);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $totalUang = floatval(str_replace('.', '', $row["nominal"])); // Hapus titik dan konversi ke angka float
+        $totalUang = floatval(str_replace('.', '', $row["nominal"]));
     } else {
         $totalUang = 0;
     }
 
-    // Lakukan operasi tambah atau kurang
     if ($jenis == 'Pemasukan') {
         $totalUang += $nominal_angka;
     } elseif ($jenis == 'Pengeluaran') {
         $totalUang -= $nominal_angka;
     }
 
-    $totalUangFormatted = number_format($totalUang, 0, ',', '.'); // Konversi kembali ke format rupiah untuk disimpan di database
+    $totalUangFormatted = number_format($totalUang, 0, ',', '.');
 
-    // Simpan total uang yang telah diupdate ke database
     $sql_update_total_uang = "UPDATE finance_total SET nominal = '$totalUangFormatted'";
     $conn->query($sql_update_total_uang);
 
-    // Masukkan data transaksi ke dalam database
     $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '$nominalFormatted', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
     
     if ($conn->query($sql_insert_transaksi) === TRUE) {
@@ -121,28 +117,91 @@ if (isset($_POST["uangSekarang"])) {
 $sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
 $result = $conn->query($sql);
 
-// Memeriksa apakah ada hasil dari query
 if ($result->num_rows > 0) {
-  // Inisialisasi array untuk menyimpan data label
   $labelsFromDatabase = array();
 
-  // Mendapatkan hasil query satu per satu
   while ($row = $result->fetch_assoc()) {
-    // Mengubah huruf besar pertama di setiap kata
     $kategori = ucwords($row["kategori"]);
 
-    // Menambahkan data label ke array jika belum ada
     if (!in_array($kategori, $labelsFromDatabase)) {
       $labelsFromDatabase[] = $kategori;
     }
   }
 
-  // Mengkonversi array ke format JSON untuk digunakan di JavaScript
   $labelsJSON = json_encode($labelsFromDatabase);
 } else {
-  // Jika tidak ada hasil dari query
   echo "Tidak ada data yang ditemukan.";
 }
+
+
+// Pemasukan
+$pemasukan_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pemasukan' GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $pemasukan_per_hari[$tanggal] = floatval($row['total_nominal']);
+}
+
+$pemasukan_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $pemasukan_chart_data[] = isset($pemasukan_per_hari[$tanggal]) ? $pemasukan_per_hari[$tanggal] : 0;
+}
+
+$pemasukanJSON = json_encode($pemasukan_chart_data);
+
+// Pengeluaran
+$pengeluaran_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pengeluaran' GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $pengeluaran_per_hari[$tanggal] = floatval($row['total_nominal']);
+}
+
+$pengeluaran_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $pengeluaran_chart_data[] = isset($pengeluaran_per_hari[$tanggal]) ? $pengeluaran_per_hari[$tanggal] : 0;
+}
+
+$pengeluaranJSON = json_encode($pengeluaran_chart_data);
+
+// Total Uang
+$total_uang_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, MAX(REPLACE(total_duit, '.', '')) AS total_duit FROM finance_histori GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $total_uang_per_hari[$tanggal] = floatval($row['total_duit']);
+}
+
+$total_uang_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $total_uang_chart_data[] = isset($total_uang_per_hari[$tanggal]) ? $total_uang_per_hari[$tanggal] : 0;
+}
+
+$total_uang_JSON = json_encode($total_uang_chart_data);
 
 
 
@@ -235,6 +294,9 @@ if ($result->num_rows > 0) {
         .input-group-text {
             border-top-left-radius: .25rem;
             border-bottom-left-radius: .25rem;
+        }
+        .clickable {
+        cursor: pointer;
         }
     </style>
 
@@ -375,7 +437,7 @@ if ($result->num_rows > 0) {
                             <div class="col-12 col-lg-8">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Statistik Pemasukan</h4>
+                                        <h4>Statistik Minggu Ini</h4>
                                     </div>
                                     <div class="card-body">
                                         <div id="bar"></div>
@@ -514,7 +576,7 @@ if ($result->num_rows > 0) {
                                                         <label for="nominal3" class="form-label">Nominal:</label>
                                                         <div class="input-group">
                                                             <span class="input-group-text">Rp.</span>
-                                                            <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="1.000.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                            <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
@@ -561,75 +623,75 @@ if ($result->num_rows > 0) {
                                             </thead>
                                             <tbody>
                                             <?php 
-                                            $dateInput = isset($_GET['q']) ? $_GET['q'] : date('Y-m-d');
+                                                $dateInput = isset($_GET['q']) ? $_GET['q'] : date('Y-m-d');
 
-                                            $parts = explode('-to-', $dateInput);
+                                                $parts = explode('-to-', $dateInput);
 
-                                            if (count($parts) == 2) {
-                                                $startDate = date('Y-m-d', strtotime($parts[0]));
-                                                $endDate = date('Y-m-d', strtotime($parts[1]));
-                                                $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
-                                                        FROM finance_histori
-                                                        WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate' ORDER BY id DESC";
-                                            } else if (preg_match('/^(\d+)d$/', $dateInput, $matches)) {
-                                                $days = intval($matches[1]);
-                                                if ($days > 0) {
-                                                    $endDate = date('Y-m-d', strtotime("-1 days"));
-                                                    $startDate = date('Y-m-d', strtotime("-$days days"));
+                                                if (count($parts) == 2) {
+                                                    $startDate = date('Y-m-d', strtotime($parts[0]));
+                                                    $endDate = date('Y-m-d', strtotime($parts[1]));
                                                     $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                             FROM finance_histori
                                                             WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate' ORDER BY id DESC";
+                                                } else if (preg_match('/^(\d+)d$/', $dateInput, $matches)) {
+                                                    $days = intval($matches[1]);
+                                                    if ($days > 0) {
+                                                        $endDate = date('Y-m-d', strtotime("-1 days"));
+                                                        $startDate = date('Y-m-d', strtotime("-$days days"));
+                                                        $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                                FROM finance_histori
+                                                                WHERE DATE(tanggal) BETWEEN '$startDate' AND '$endDate' ORDER BY id DESC";
+                                                    } else {
+                                                        $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
+                                                                FROM finance_histori
+                                                                WHERE DATE(tanggal) = CURDATE() ORDER BY id DESC";
+                                                    }
                                                 } else {
+                                                    $dateInput = date('Y-m-01', strtotime($dateInput));
                                                     $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
                                                             FROM finance_histori
-                                                            WHERE DATE(tanggal) = CURDATE() ORDER BY id DESC";
+                                                            WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput' ORDER BY id DESC";
                                                 }
-                                            } else {
-                                                $dateInput = date('Y-m-01', strtotime($dateInput));
-                                                $sql = "SELECT id, judul, DATE_FORMAT(tanggal, '%d %b %Y') AS tanggal, nominal, tipe 
-                                                        FROM finance_histori
-                                                        WHERE DATE_FORMAT(tanggal, '%Y-%m-01') = '$dateInput' ORDER BY id DESC";
-                                            }
 
-                                                    $result = $conn->query($sql);
+                                                $result = $conn->query($sql);
 
-                                                    if ($result->num_rows > 0) {
-                                                        while($row = $result->fetch_assoc()) {
-                                                            echo '<tr>';
-                                                            echo '<td class="d-none">' . $row['id'] . '</td>';
-                                                            echo '<td>';
-                                                            echo '<div class="card mb-3">';
-                                                            echo '<div class="card-body p-1 pb-0">';
-                                                            echo '<div class="row align-items-center">';
-                                                            echo '<div class="col-auto">';
-                                                            if ($row['tipe'] == 'Pemasukan') {
-                                                                echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
-                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
-                                                                echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
-                                                            }
-                                                            echo '</div>';
-                                                            echo '<div class="col">';
-                                                            echo '<h6 class="mb-0">' . $row['judul'] . '</h6>';
-                                                            echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
-                                                            echo '</div>';
-                                                            echo '<div class="col-auto">';
-                                                            echo '<p class="mb-0 ';
-                                                            if ($row['tipe'] == 'Pemasukan') {
-                                                                echo 'text-success">+ Rp. ' . $row['nominal'];
-                                                            } elseif ($row['tipe'] == 'Pengeluaran') {
-                                                                echo 'text-danger">- Rp. ' . $row['nominal'];
-                                                            }
-                                                            echo '</p>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</div>';
-                                                            echo '</td>';
-                                                            echo '</tr>';
+                                                if ($result->num_rows > 0) {
+                                                    while($row = $result->fetch_assoc()) {
+                                                        echo '<tr>';
+                                                        echo '<td class="d-none">' . $row['id'] . '</td>';
+                                                        echo '<td>';
+                                                        echo '<div class="card mb-3">';
+                                                        echo '<div class="card-body p-1 pb-0">';
+                                                        echo '<div class="row align-items-center">';
+                                                        echo '<div class="col-auto">';
+                                                        if ($row['tipe'] == 'Pemasukan') {
+                                                            echo '<div class="stats-icon bg-success mb-2"><i class="bi-arrow-up-right fs-4"></i></div>';
+                                                        } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                            echo '<div class="stats-icon bg-danger mb-2"><i class="bi-arrow-down-right fs-4"></i></div>';
                                                         }
-                                                    } else {
-                                                        echo "0 hasil";
+                                                        echo '</div>';
+                                                        echo '<div class="col">';
+                                                        echo '<h6 class="mb-0">' . ucwords($row['judul']) . '</h6>'; // Menggunakan ucwords() untuk membuat huruf pertama menjadi huruf besar
+                                                        echo '<p class="text-muted text-sm mb-1">' . $row['tanggal'] . '</p>';
+                                                        echo '</div>';
+                                                        echo '<div class="col-auto">';
+                                                        echo '<p class="mb-0 ';
+                                                        if ($row['tipe'] == 'Pemasukan') {
+                                                            echo 'text-success">+ Rp. ' . $row['nominal'];
+                                                        } elseif ($row['tipe'] == 'Pengeluaran') {
+                                                            echo 'text-danger">- Rp. ' . $row['nominal'];
+                                                        }
+                                                        echo '</p>';
+                                                        echo '</div>';
+                                                        echo '</div>';
+                                                        echo '</div>';
+                                                        echo '</div>';
+                                                        echo '</td>';
+                                                        echo '</tr>';
                                                     }
+                                                } else {
+                                                    echo "0 hasil";
+                                                }
                                                 ?>
                                             </tbody>
                                         </table>
@@ -649,22 +711,6 @@ if ($result->num_rows > 0) {
     
     <!-- Custom JS -->
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
-    <script>
-        <?php
-        // Tampilkan pesan kesalahan jika ada
-        if (isset($error_message)) {
-            echo "swal('Error', '$error_message', 'error');";
-        }
-
-        // Tampilkan pesan sukses jika ada
-        if (isset($success_message)) {
-            echo "Swal.fire({
-                title: '$success_message',
-                icon: 'success'
-              });";
-        }
-        ?>
-    </script>
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="assets/extensions/flatpickr/flatpickr.min.js"></script>
     <script src="assets/extensions/jquery/jquery.min.js"></script>
@@ -672,91 +718,109 @@ if ($result->num_rows > 0) {
     <script src="assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         var barOptions = {
-        series: [
-            {
-            name: "Pemasukan",
-            data: [44, 55, 57, 56, 61, 58, 112],
+            series: [
+                {
+                    name: "Pemasukan",
+                    data: <?= $pemasukanJSON; ?>,
+                },
+                {
+                    name: "Pengeluaran",
+                    data: <?= $pengeluaranJSON; ?>,
+                },
+                {
+                    name: "Uang Saya",
+                    data: <?= $total_uang_JSON; ?>,
+                },
+            ],
+            chart: {
+                type: "bar",
+                height: 350,
             },
-            {
-            name: "Pengeluaran",
-            data: [76, 85, 101, 98, 87, 105, 120],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "55%",
+                    endingShape: "rounded",
+                },
             },
-            {
-            name: "Uang Saya",
-            data: [120, 140, 158, 154, 148, 163, 232],
+            dataLabels: {
+                enabled: false,
             },
-        ],
-        chart: {
-            type: "bar",
-            height: 350,
-        },
-        plotOptions: {
-            bar: {
-            horizontal: false,
-            columnWidth: "55%",
-            endingShape: "rounded",
+            colors: ['#198754', '#dc3545', '#6c757d'],
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ["transparent"],
             },
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        colors: ['#198754', '#dc3545', '#6c757d'],
-        stroke: {
-            show: true,
-            width: 2,
-            colors: ["transparent"],
-        },
-        xaxis: {
-            categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
-        },
-        yaxis: {
-            title: {
-            text: "Rp. (Rupiah)",
+            xaxis: {
+                categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
             },
-        },
-        fill: {
-            opacity: 1,
-        },
-        tooltip: {
-            y: {
-            formatter: function (val) {
-                return "Rp. " + val;
+            yaxis: {
+                title: {
+                    text: "Rp. (Rupiah)",
+                },
+                labels: {
+                    formatter: function (value) {
+                        // Format nilai menjadi format Rupiah
+                        return "Rp. " + value.toLocaleString('id-ID');
+                    }
+                }
             },
+            fill: {
+                opacity: 1,
             },
-        },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        // Format nilai tooltip menjadi format Rupiah
+                        return "Rp. " + val.toLocaleString('id-ID');
+                    },
+                },
+            },
         };
-        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);   
+
+        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
+
 
         var options = {
-          series: <?= $totalNominalsJSON; ?>,
-          chart: {
-          width: '100%',
-          type: 'pie',
-        },
-        labels: <?= $labelsJSON; ?>,
-        theme: {
-          monochrome: {
-            enabled: true
-          }
-        },
-        plotOptions: {
-          pie: {
+            series: <?= $totalNominalsJSON; ?>,
+            chart: {
+                width: '100%',
+                type: 'pie',
+            },
+            labels: <?= $labelsJSON; ?>,
+            theme: {
+                monochrome: {
+                    enabled: true
+                }
+            },
+            plotOptions: {
+                pie: {
+                    dataLabels: {
+                        offset: -5
+                    }
+                }
+            },
             dataLabels: {
-              offset: -5
-            }
-          }
-        },
-        dataLabels: {
-          formatter(val, opts) {
-            const name = opts.w.globals.labels[opts.seriesIndex]
-            return [name, val.toFixed(1) + '%']
-          }
-        },
-        legend: {
-          show: false
-        }
+                formatter(val, opts) {
+                    const name = opts.w.globals.labels[opts.seriesIndex];
+                    return [name, val.toFixed(1) + '%']
+                }
+            },
+            legend: {
+                show: false
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return "Rp. " + val.toLocaleString('id-ID');
+                    },
+                },
+            },
         };
+
         var pie = new ApexCharts(document.querySelector("#pie"), options);
+
 
         pie.render();
         bar.render();
@@ -842,6 +906,22 @@ if ($result->num_rows > 0) {
 
     // Memanggil fungsi untuk membalikkan data tabel
     reverseTableData();
+    </script>
+    <script>
+        <?php
+        // Tampilkan pesan kesalahan jika ada
+        if (isset($error_message)) {
+            echo "swal('Error', '$error_message', 'error');";
+        }
+
+        // Tampilkan pesan sukses jika ada
+        if (isset($success_message)) {
+            echo "Swal.fire({
+                title: '$success_message',
+                icon: 'success'
+              });";
+        }
+        ?>
     </script>
 </body>
 </html>
