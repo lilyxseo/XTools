@@ -200,18 +200,43 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
                         </div>
                     </div>
                     <div class="col-12 col-lg-3">
-                    <div class="card">
-                        <div class="card-body py-4 px-4">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar avatar-xl">
-                                    <img src="./assets/compiled/jpg/1699242339.gif" draggable="false">
-                                </div>
-                                <div class="ms-3 name">
-                                    <h5 class="font-bold">Abi Baydarus</h5>
-                                    <h6 class="text-muted mb-0">@bydrz</h6>
+                        <div class="card">
+                            <div class="card-body py-4 px-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xl">
+                                        <img src="./assets/compiled/jpg/1699242339.gif" draggable="false">
+                                    </div>
+                                    <div class="ms-3 name">
+                                        <h5 class="font-bold">Abi Baydarus</h5>
+                                        <h6 class="text-muted mb-0">@bydrz</h6>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="card">
+                            <div class="card-body px-4 py-3-5">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="font-extrabold mb-0">Total uang kamu 
+                                            </h6>
+                                            <i class="bi-bank2 fs-5 mb-0"></i>
+                                            <?php 
+                                            $sql = "SELECT nominal FROM finance_total";
+                                            $result = mysqli_query($conn, $sql);
+                                                                                            
+                                            if (mysqli_num_rows($result) > 0) {
+                                            $row = mysqli_fetch_assoc($result);
+                                            $uangSaya = $row["nominal"];
+                                            } else {
+                                              $uangSaya = 0;
+                                                }
+                                            ; ?>
+                                        </div><h6 class='text-secondary'>Rp. <?= $uangSaya; ?> </h6>
+                                    </div>
+                                </div> 
+                            </div>
+                       </div>
                     </div>
                 </section>
             </div>
