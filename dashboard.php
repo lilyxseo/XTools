@@ -27,14 +27,17 @@ $coins = array(
     'token_idr' => array(
         'name' => 'TokenFI',
         'image' => 'https://indodax.com/v2/logo/svg/color/token.svg',
+        'amount' => 161.46623363
     ),
     'ondo_idr' => array(
         'name' => 'Ondo',
         'image' => 'https://indodax.com/v2/logo/svg/color/ondo.svg',
+        'amount' => 11.05221801
     ),
     'doge_idr' => array(
         'name' => 'Dogecoin',
         'image' => 'https://indodax.com/v2/logo/svg/color/doge.svg',
+        'amount' => 110.6385164
     ),
     // Tambahkan koin lain jika diperlukan
 );
@@ -46,9 +49,11 @@ foreach ($coins as $key => $coin) {
         $totalAsset += $coin['amount'] * $data['tickers'][$key]['last'];
     }
 }
+function formatRupiah($number) {
+    return 'Rp. ' . number_format($number, 0, ',', '.');
+}
 
-$assetSaya = number_format($totalAsset, 2, ',', '.');
-
+$assetSaya = formatRupiah($totalAsset);
 
 // Pemasukan
 $pemasukan_per_hari = array();
