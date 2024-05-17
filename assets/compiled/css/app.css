@@ -18578,7 +18578,7 @@ body .bi:before,
   left: 0;
 }
 .sidebar-wrapper {
-  width: 300px;
+  /* width: 300px; */
   height: 100vh;
   position: fixed;
   top: 0;
