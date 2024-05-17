@@ -50,7 +50,7 @@ foreach ($coins as $key => $coin) {
     }
 }
 function formatRupiah($number) {
-    return 'Rp. ' . number_format($number, 0, ',', '.');
+    return number_format($number, 0, ',', '.');
 }
 
 $assetSaya = formatRupiah($totalAsset);
