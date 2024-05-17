@@ -22,7 +22,7 @@ $coins = array(
     'btc_idr' => array(
         'name' => 'Bitcoin',
         'image' => 'https://indodax.com/v2/logo/svg/color/btc.svg',
-        'amount' => 0.5 // jumlah Bitcoin yang Anda miliki
+        'amount' => 0.0001648
     ),
     'token_idr' => array(
         'name' => 'TokenFI',
