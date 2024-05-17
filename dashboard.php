@@ -22,6 +22,7 @@ $coins = array(
     'btc_idr' => array(
         'name' => 'Bitcoin',
         'image' => 'https://indodax.com/v2/logo/svg/color/btc.svg',
+        'amount' => 0.5 // jumlah Bitcoin yang Anda miliki
     ),
     'token_idr' => array(
         'name' => 'TokenFI',
@@ -37,6 +38,16 @@ $coins = array(
     ),
     // Tambahkan koin lain jika diperlukan
 );
+
+// Menghitung total aset dalam IDR
+$totalAsset = 0;
+foreach ($coins as $key => $coin) {
+    if (isset($data['tickers'][$key]['last'])) {
+        $totalAsset += $coin['amount'] * $data['tickers'][$key]['last'];
+    }
+}
+
+$assetSaya = number_format($totalAsset, 2, ',', '.');
 
 
 // Pemasukan
@@ -236,7 +247,20 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
                                     </div>
                                 </div> 
                             </div>
-                       </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body px-4 py-3-5">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="font-extrabold mb-0">Total asset crypto 
+                                            </h6>
+                                            <i class="bi-currency-bitcoin fs-5 mb-0"></i>
+                                        </div><h6 class='text-secondary'>Rp. <?= $assetSaya; ?> </h6>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
