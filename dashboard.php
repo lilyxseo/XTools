@@ -38,6 +38,77 @@ $coins = array(
     // Tambahkan koin lain jika diperlukan
 );
 
+
+// Pemasukan
+$pemasukan_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pemasukan' GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $pemasukan_per_hari[$tanggal] = floatval($row['total_nominal']);
+}
+
+$pemasukan_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $pemasukan_chart_data[] = isset($pemasukan_per_hari[$tanggal]) ? $pemasukan_per_hari[$tanggal] : 0;
+}
+
+$pemasukanJSON = json_encode($pemasukan_chart_data);
+
+// Pengeluaran
+$pengeluaran_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pengeluaran' GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $pengeluaran_per_hari[$tanggal] = floatval($row['total_nominal']);
+}
+
+$pengeluaran_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $pengeluaran_chart_data[] = isset($pengeluaran_per_hari[$tanggal]) ? $pengeluaran_per_hari[$tanggal] : 0;
+}
+
+$pengeluaranJSON = json_encode($pengeluaran_chart_data);
+
+// Total Uang
+$total_uang_per_hari = array();
+
+$sql = "SELECT DATE(tanggal) AS tanggal, MAX(REPLACE(total_duit, '.', '')) AS total_duit FROM finance_histori GROUP BY DATE(tanggal)";
+$result1 = $conn->query($sql);
+
+while ($row = $result1->fetch_assoc()) {
+    $tanggal = $row['tanggal'];
+    $total_uang_per_hari[$tanggal] = floatval($row['total_duit']);
+}
+
+$total_uang_chart_data = array();
+
+$timestamp_sekarang = time();
+$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
+
+for ($i = 0; $i < 7; $i++) {
+    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
+    $total_uang_chart_data[] = isset($total_uang_per_hari[$tanggal]) ? $total_uang_per_hari[$tanggal] : 0;
+}
+
+$total_uang_JSON = json_encode($total_uang_chart_data);
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -119,10 +190,10 @@ $coins = array(
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4>Profile Visit</h4>
+                                        <h4>Statistik Minggu Ini</h4>
                                     </div>
                                     <div class="card-body">
-                                        <div id="chart-profile-visit"></div>
+                                        <div id="bar"></div>
                                     </div>
                                 </div>
                             </div>
@@ -153,7 +224,72 @@ $coins = array(
     
     <!-- Custom JS -->
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
-    <script src="assets/static/js/pages/dashboard.js"></script> 
+    <script>
+        var barOptions = {
+            series: [
+                {
+                    name: "Pemasukan",
+                    data: <?= $pemasukanJSON; ?>,
+                },
+                {
+                    name: "Pengeluaran",
+                    data: <?= $pengeluaranJSON; ?>,
+                },
+                {
+                    name: "Uang Saya",
+                    data: <?= $total_uang_JSON; ?>,
+                },
+            ],
+            chart: {
+                type: "bar",
+                height: 350,
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: "55%",
+                    endingShape: "rounded",
+                },
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            colors: ['#198754', '#dc3545', '#6c757d'],
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ["transparent"],
+            },
+            xaxis: {
+                categories: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+            },
+            yaxis: {
+                title: {
+                    text: "Rp. (Rupiah)",
+                },
+                labels: {
+                    formatter: function (value) {
+                        // Format nilai menjadi format Rupiah
+                        return "Rp. " + value.toLocaleString('id-ID');
+                    }
+                }
+            },
+            fill: {
+                opacity: 1,
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        // Format nilai tooltip menjadi format Rupiah
+                        return "Rp. " + val.toLocaleString('id-ID');
+                    },
+                },
+            },
+        };
+
+        var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
+        bar.render();
+    </script>
 </body>
 
 </html>

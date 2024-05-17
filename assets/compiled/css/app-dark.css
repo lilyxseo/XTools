@@ -9161,7 +9161,7 @@ html[data-bs-theme="dark"] #sidebar.active .sidebar-wrapper {
   left: 0;
 }
 html[data-bs-theme="dark"] .sidebar-wrapper {
-  width: 300px;
+  /* width: 300px; */
   height: 100vh;
   position: fixed;
   top: 0;
