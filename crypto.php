@@ -2,6 +2,7 @@
 include 'menu.php';
 require 'functions.php';
 
+
 // Fungsi untuk mengambil data dari API Indodax
 function getIndodaxData($url) {
     $curl = curl_init($url);
@@ -22,21 +23,38 @@ $coins = array(
     'btc_idr' => array(
         'name' => 'Bitcoin',
         'image' => 'https://indodax.com/v2/logo/svg/color/btc.svg',
+        'amount' => 0.0001648
     ),
     'token_idr' => array(
         'name' => 'TokenFI',
         'image' => 'https://indodax.com/v2/logo/svg/color/token.svg',
+        'amount' => 161.46623363
     ),
     'ondo_idr' => array(
         'name' => 'Ondo',
         'image' => 'https://indodax.com/v2/logo/svg/color/ondo.svg',
+        'amount' => 11.05221801
     ),
     'doge_idr' => array(
         'name' => 'Dogecoin',
         'image' => 'https://indodax.com/v2/logo/svg/color/doge.svg',
+        'amount' => 110.6385164
     ),
     // Tambahkan koin lain jika diperlukan
 );
+
+// Menghitung total aset dalam IDR
+$totalAsset = 0;
+foreach ($coins as $key => $coin) {
+    if (isset($data['tickers'][$key]['last'])) {
+        $totalAsset += $coin['amount'] * $data['tickers'][$key]['last'];
+    }
+}
+function formatRupiah($number) {
+    return number_format($number, 0, ',', '.');
+}
+
+$assetSaya = formatRupiah($totalAsset);
 
 ?>
 <!DOCTYPE html>
@@ -134,6 +152,21 @@ $coins = array(
                         <?php } ?>
                     </div>
                 </div>
+                <div class="col-12 col-lg-3">
+                        <div class="card">
+                            <div class="card-body px-4 py-3-5">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="font-extrabold mb-0">Total asset crypto 
+                                            </h6>
+                                            <i class="bi-currency-bitcoin fs-5 mb-0"></i>
+                                        </div><h6 class='text-secondary'>Rp. <?= $assetSaya; ?> </h6>
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
                 <!-- Tabel
                 <div class="col-12 col-lg-9">
                     <section class="section">
