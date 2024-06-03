@@ -1,4 +1,4 @@
--- Backup database pada 2024-06-03 01:16:41
+-- Backup database pada 2024-06-03 22:47:17
 
 CREATE TABLE `app` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -66,7 +66,7 @@ CREATE TABLE `finance_histori` (
   `tipe` varchar(255) NOT NULL,
   `total_duit` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO finance_histori VALUES
 ('1', 'Saldo dana', '2024-05-08 22:53:27', '74.416', 'saldo', '', 'Pemasukan', '74.416'),
@@ -200,7 +200,18 @@ INSERT INTO finance_histori VALUES
 ('138', 'depo', '2024-06-02 12:57:45', '25.000', 'Haram', '', 'Pemasukan', '1.020.616'),
 ('139', 'jual shell desa.id', '2024-06-02 13:34:11', '800.000', 'Haram', '', 'Pemasukan', '1.820.616'),
 ('140', 'depo', '2024-06-02 13:44:31', '40.000', 'Haram', '', 'Pemasukan', '1.860.616'),
-('141', 'beli es krim', '2024-06-02 15:58:37', '9.000', 'Jajan', '', 'Pengeluaran', '1.851.616');
+('141', 'beli es krim', '2024-06-02 15:58:37', '9.000', 'Jajan', '', 'Pengeluaran', '1.851.616'),
+('142', 'beli mie', '2024-06-03 10:57:42', '3.000', 'Kebutuhan', '', 'Pengeluaran', '1.848.616'),
+('143', 'beli es krim', '2024-06-03 10:57:54', '2.000', 'Jajan', '', 'Pengeluaran', '1.846.616'),
+('144', 'beli es benteng', '2024-06-03 11:27:30', '10.000', 'Jajan', '', 'Pengeluaran', '1.836.616'),
+('145', 'BCA kontol', '2024-06-03 12:57:43', '40.000', 'Kebutuhan Lain', '', 'Pengeluaran', '1.796.616'),
+('146', 'beli telor', '2024-06-03 14:03:50', '15.000', 'Kebutuhan', '', 'Pengeluaran', '1.781.616'),
+('147', 'beli es krim', '2024-06-03 14:04:01', '3.000', 'Jajan', '', 'Pengeluaran', '1.778.616'),
+('148', 'bensin', '2024-06-03 16:37:08', '50.000', 'Kebutuhan', '', 'Pengeluaran', '1.728.616'),
+('149', 'jual shell', '2024-06-03 16:37:18', '800.000', 'Haram', '', 'Pemasukan', '2.528.616'),
+('150', 'beli es krim', '2024-06-03 19:41:36', '3.000', 'Jajan', '', 'Pengeluaran', '2.525.616'),
+('151', 'jajanin bocah', '2024-06-03 20:01:32', '8.000', 'Jajan', '', 'Pengeluaran', '2.517.616'),
+('152', 'beli cireng', '2024-06-03 20:54:13', '5.000', 'Jajan', '', 'Pengeluaran', '2.512.616');
 
 CREATE TABLE `finance_total` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -209,7 +220,7 @@ CREATE TABLE `finance_total` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO finance_total VALUES
-('1', '1.851.616');
+('1', '2.512.616');
 
 CREATE TABLE `login_cookies` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -444,7 +455,15 @@ CREATE TABLE `url_links` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `short_code` (`short_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO url_links VALUES
+('4', '', 'https://google.com', '84jgGo', '2024-06-03 01:46:37'),
+('5', '', 'https://bydrz.com', 'N7qa2p', '2024-06-03 01:47:53'),
+('6', '', 'https://bydrz.com', 'AwK93b', '2024-06-03 01:49:27'),
+('7', '', 'https://bydrz.com', 'dOruIX', '2024-06-03 01:50:16'),
+('8', '', 'https://bydrz.com', 'EAvmC4', '2024-06-03 01:50:35'),
+('9', '', 'https://asukoe.com', 'gymZxE', '2024-06-03 02:02:09');
 
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
