@@ -248,7 +248,7 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
 
 
 // Fetch categories from database for Pengeluaran
-$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran' ORDER BY kategori ASC";
 $result = $conn->query($sql);
 
 $pengeluaran = [];
