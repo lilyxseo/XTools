@@ -3,9 +3,9 @@ include 'menu.php';
 require 'functions.php';
 
 $thisMonth = date('Y-m-01');
+$dateInput = $_GET['q'] ?? $thisMonth;
 
-$dateInput = isset($_GET['q']) ? $_GET['q'] : $thisMonth;
-
+// Menentukan rentang tanggal atau offset hari
 $parts = explode('-to-', $dateInput);
 
 if (count($parts) == 2) {
@@ -14,28 +14,25 @@ if (count($parts) == 2) {
     $startDate = date('Y-m-d', strtotime("-$days1 days"));
     $endDate = date('Y-m-d', strtotime("-$days2 days"));
     $date = "$startDate to $endDate";
-} else if (preg_match('/^\d+d$/', $dateInput)) {
+} elseif (preg_match('/^\d+d$/', $dateInput)) {
     $days = intval($dateInput);
     $date = date('Y-m-d', strtotime("-$days days"));
 } else {
-    $date = "Invalid format";
+    $date = "Format tidak valid";
 }
 
-if(isset($_GET['selectDate'])) {
+// Mengelola pemilihan tanggal manual
+if (isset($_GET['selectDate'])) {
     $dateInput = $_GET['date'];
+    $today = date("Y-m-d");
 
     if (strpos($dateInput, ' to ') !== false) {
         list($startDate, $endDate) = explode(" to ", $dateInput);
-
-        $today = date("Y-m-d");
         $differenceInStart = date_diff(date_create($today), date_create($startDate))->format('%a');
         $differenceInEnd = date_diff(date_create($today), date_create($endDate))->format('%a');
-
         $redirectURL = '?q=' . $differenceInStart . 'd-to-' . $differenceInEnd . 'd';
     } else {
-        $today = date("Y-m-d");
         $differenceInDays = date_diff(date_create($today), date_create($dateInput))->format('%a');
-
         $redirectURL = '?q=' . $differenceInDays . 'd';
     }
 
@@ -43,57 +40,39 @@ if(isset($_GET['selectDate'])) {
     exit();
 }
 
-
+// Fungsi untuk membersihkan input
 function clean_input($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
+    return htmlspecialchars(stripslashes(trim($data)));
 }
 
+// Mengambil total nominal dari database
 $sql = "SELECT nominal FROM finance_total";
 $result = mysqli_query($conn, $sql);
-                                                
-if (mysqli_num_rows($result) > 0) {
-$row = mysqli_fetch_assoc($result);
-$totalUang = $row["nominal"];
-} else {
-$totalUang = 0;
-}
+$totalUang = (mysqli_num_rows($result) > 0) ? mysqli_fetch_assoc($result)["nominal"] : 0;
 
+// Menangani penambahan data baru
 if (isset($_POST["tambahData"])) {
     $judul = clean_input($_POST["judul"]);
     $nominal_input = clean_input($_POST["nominal"]);
-    $nominal_angka = str_replace('.', '', $nominal_input);
-    $nominal_angka = str_replace(',', '.', $nominal_angka);
+    $nominal_angka = floatval(str_replace(['.', ','], ['', '.'], $nominal_input));
     $kategori = clean_input($_POST["kategori"]);
     $keterangan = clean_input($_POST["keterangan"]);
     $jenis = clean_input($_POST["jenis"]);
 
-    $nominalFormatted = number_format($nominal_angka, 0, ',', '.');
+    // Mengambil total uang saat ini
+    $result = $conn->query("SELECT nominal FROM finance_total");
+    $totalUang = ($result->num_rows > 0) ? floatval(str_replace('.', '', $result->fetch_assoc()["nominal"])) : 0;
 
-    $sql_select_total_uang = "SELECT nominal FROM finance_total";
-    $result = $conn->query($sql_select_total_uang);
-
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $totalUang = floatval(str_replace('.', '', $row["nominal"]));
-    } else {
-        $totalUang = 0;
-    }
-
-    if ($jenis == 'Pemasukan') {
-        $totalUang += $nominal_angka;
-    } elseif ($jenis == 'Pengeluaran') {
-        $totalUang -= $nominal_angka;
-    }
+    // Menghitung total uang berdasarkan jenis transaksi
+    $totalUang = ($jenis == 'Pemasukan') ? $totalUang + $nominal_angka : $totalUang - $nominal_angka;
 
     $totalUangFormatted = number_format($totalUang, 0, ',', '.');
 
-    $sql_update_total_uang = "UPDATE finance_total SET nominal = '$totalUangFormatted'";
-    $conn->query($sql_update_total_uang);
+    // Memperbarui total uang di database
+    $conn->query("UPDATE finance_total SET nominal = '$totalUangFormatted'");
 
-    $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '$nominalFormatted', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
+    // Menyimpan transaksi ke database
+    $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '" . number_format($nominal_angka, 0, ',', '.') . "', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
     
     if ($conn->query($sql_insert_transaksi) === TRUE) {
         $success_message = "Data berhasil ditambahkan";
@@ -102,176 +81,81 @@ if (isset($_POST["tambahData"])) {
     }
 }
 
+// Menangani pembaruan nominal
 if (isset($_POST["uangSekarang"])) {
     $nominalBaru = clean_input($_POST["nominalBaru"]);
 
-    $sql_update = "UPDATE finance_total SET nominal = '$nominalBaru';";
-    if ($conn->query($sql_update) === TRUE) {
+    if ($conn->query("UPDATE finance_total SET nominal = '$nominalBaru'") === TRUE) {
         $success_message = "Data berhasil diubah!";
     } else {
-        $error_message = "Error: " . $sql . "<br>" . $conn->error;
+        $error_message = "Error: " . $conn->error;
     }
 }
 
-
-$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-  $labelsFromDatabase = array();
-
-  while ($row = $result->fetch_assoc()) {
-    $kategori = ucwords($row["kategori"]);
-
-    if (!in_array($kategori, $labelsFromDatabase)) {
-      $labelsFromDatabase[] = $kategori;
-    }
-  }
-
-  $labelsJSON = json_encode($labelsFromDatabase);
-} else {
-  echo "Tidak ada data yang ditemukan.";
+// Mengambil kategori pengeluaran dari database
+$pengeluaran = [];
+$result = $conn->query("SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'");
+while ($row = $result->fetch_assoc()) {
+    $pengeluaran[] = ['kategori' => ucwords(strtolower($row['kategori']))];
 }
 
-
-// Pemasukan
-$pemasukan_per_hari = array();
-
-$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pemasukan' GROUP BY DATE(tanggal)";
-$result1 = $conn->query($sql);
-
-while ($row = $result1->fetch_assoc()) {
-    $tanggal = $row['tanggal'];
-    $pemasukan_per_hari[$tanggal] = floatval($row['total_nominal']);
+// Mengambil kategori pemasukan dari database
+$pemasukan = [];
+$result = $conn->query("SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan'");
+while ($row = $result->fetch_assoc()) {
+    $pemasukan[] = ['kategori' => ucwords(strtolower($row['kategori']))];
 }
 
-$pemasukan_chart_data = array();
+// Mengambil data pemasukan per hari
+$pemasukan_per_hari = [];
+$result = $conn->query("SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pemasukan' GROUP BY DATE(tanggal)");
+while ($row = $result->fetch_assoc()) {
+    $pemasukan_per_hari[$row['tanggal']] = floatval($row['total_nominal']);
+}
 
+// Mengambil data pengeluaran per hari
+$pengeluaran_per_hari = [];
+$result = $conn->query("SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pengeluaran' GROUP BY DATE(tanggal)");
+while ($row = $result->fetch_assoc()) {
+    $pengeluaran_per_hari[$row['tanggal']] = floatval($row['total_nominal']);
+}
+
+// Mengambil data total uang per hari
+$total_uang_per_hari = [];
+$result = $conn->query("SELECT DATE(tanggal) AS tanggal, MAX(REPLACE(total_duit, '.', '')) AS total_duit FROM finance_histori GROUP BY DATE(tanggal)");
+while ($row = $result->fetch_assoc()) {
+    $total_uang_per_hari[$row['tanggal']] = floatval($row['total_duit']);
+}
+
+// Persiapan data untuk chart
 $timestamp_sekarang = time();
 $tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
 
+$pemasukan_chart_data = $pengeluaran_chart_data = $total_uang_chart_data = [];
+
 for ($i = 0; $i < 7; $i++) {
     $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
-    $pemasukan_chart_data[] = isset($pemasukan_per_hari[$tanggal]) ? $pemasukan_per_hari[$tanggal] : 0;
+    $pemasukan_chart_data[] = $pemasukan_per_hari[$tanggal] ?? 0;
+    $pengeluaran_chart_data[] = $pengeluaran_per_hari[$tanggal] ?? 0;
+    $total_uang_chart_data[] = $total_uang_per_hari[$tanggal] ?? 0;
 }
 
 $pemasukanJSON = json_encode($pemasukan_chart_data);
-
-// Pengeluaran
-$pengeluaran_per_hari = array();
-
-$sql = "SELECT DATE(tanggal) AS tanggal, SUM(REPLACE(nominal, '.', '')) AS total_nominal FROM finance_histori WHERE tipe = 'Pengeluaran' GROUP BY DATE(tanggal)";
-$result1 = $conn->query($sql);
-
-while ($row = $result1->fetch_assoc()) {
-    $tanggal = $row['tanggal'];
-    $pengeluaran_per_hari[$tanggal] = floatval($row['total_nominal']);
-}
-
-$pengeluaran_chart_data = array();
-
-$timestamp_sekarang = time();
-$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
-
-for ($i = 0; $i < 7; $i++) {
-    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
-    $pengeluaran_chart_data[] = isset($pengeluaran_per_hari[$tanggal]) ? $pengeluaran_per_hari[$tanggal] : 0;
-}
-
 $pengeluaranJSON = json_encode($pengeluaran_chart_data);
-
-// Total Uang
-$total_uang_per_hari = array();
-
-$sql = "SELECT DATE(tanggal) AS tanggal, MAX(REPLACE(total_duit, '.', '')) AS total_duit FROM finance_histori GROUP BY DATE(tanggal)";
-$result1 = $conn->query($sql);
-
-while ($row = $result1->fetch_assoc()) {
-    $tanggal = $row['tanggal'];
-    $total_uang_per_hari[$tanggal] = floatval($row['total_duit']);
-}
-
-$total_uang_chart_data = array();
-
-$timestamp_sekarang = time();
-$tanggal_awal_minggu = date('Y-m-d', strtotime('last Monday', $timestamp_sekarang));
-
-for ($i = 0; $i < 7; $i++) {
-    $tanggal = date('Y-m-d', strtotime("$tanggal_awal_minggu +$i day"));
-    $total_uang_chart_data[] = isset($total_uang_per_hari[$tanggal]) ? $total_uang_per_hari[$tanggal] : 0;
-}
-
 $total_uang_JSON = json_encode($total_uang_chart_data);
 
-
-
-// Mengambil data nominal dari database
-$sql = "SELECT kategori, nominal FROM finance_histori WHERE tipe = 'Pengeluaran'";
-$result = $conn->query($sql);
-
-// Memeriksa apakah ada hasil dari query
-if ($result->num_rows > 0) {
-    // Inisialisasi array untuk menyimpan total nominal
-    $totalNominals = array();
-
-    // Mendapatkan hasil query satu per satu
-    while ($row = $result->fetch_assoc()) {
-        // Menghilangkan karakter pemisah dan mengonversi ke tipe data float
-        $nominal = floatval(str_replace(',', '', str_replace('.', '', $row["nominal"])));
-        
-        // Mengubah huruf besar pertama di setiap kata kategori
-        $kategori = ucwords($row["kategori"]);
-
-        // Menambahkan nominal ke kategori yang sama atau membuat entri baru jika belum ada
-        if (array_key_exists($kategori, $totalNominals)) {
-            $totalNominals[$kategori] += $nominal;
-        } else {
-            $totalNominals[$kategori] = $nominal;
-        }
-    }
-
-    // Mengonversi nilai nominal ke format rupiah tanpa tanda petik
-    foreach ($totalNominals as $key => $value) {
-        // Mengonversi nilai menjadi pecahan dengan dua desimal
-        $totalNominals[$key] = round($value, 2);
-    }
-
-    // Mengonversi array ke format array numerik untuk digunakan di JavaScript
-    $totalNominalsJSON = json_encode(array_values($totalNominals));
-} else {
-    // Jika tidak ada hasil dari query
-    echo "Tidak ada data yang ditemukan.";
+// Mengambil data nominal pengeluaran per kategori
+$result = $conn->query("SELECT kategori, nominal FROM finance_histori WHERE tipe = 'Pengeluaran'");
+$totalNominals = [];
+while ($row = $result->fetch_assoc()) {
+    $nominal = floatval(str_replace([',', '.'], '', $row["nominal"]));
+    $kategori = ucwords($row["kategori"]);
+    $totalNominals[$kategori] = ($totalNominals[$kategori] ?? 0) + $nominal;
 }
-
-
-
-// Fetch categories from database for Pengeluaran
-$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran'";
-$result = $conn->query($sql);
-
-$pengeluaran = [];
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
-        $row['kategori'] = ucwords(strtolower($row['kategori']));
-        $pengeluaran[] = $row;
-    }
-}
-
-// Fetch categories from database for Pemasukan
-$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan'";
-$result = $conn->query($sql);
-
-$pemasukan = [];
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
-        $row['kategori'] = ucwords(strtolower($row['kategori']));
-        $pemasukan[] = $row;
-    }
-}
+$totalNominalsJSON = json_encode(array_values($totalNominals));
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
