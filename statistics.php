@@ -727,10 +727,6 @@ if ($result->num_rows > 0) {
                     name: "Pengeluaran",
                     data: <?= $pengeluaranJSON; ?>,
                 },
-                {
-                    name: "Uang Saya",
-                    data: <?= $total_uang_JSON; ?>,
-                },
             ],
             chart: {
                 type: "bar",
@@ -746,7 +742,7 @@ if ($result->num_rows > 0) {
             dataLabels: {
                 enabled: false,
             },
-            colors: ['#198754', '#dc3545', '#6c757d'],
+            colors: ['#198754', '#dc3545'],
             stroke: {
                 show: true,
                 width: 2,

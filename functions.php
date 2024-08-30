@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
 if (!isset($_COOKIE['unique_login_cookie'])) {
-    header('Location: signin'); // Redirect pengguna ke halaman login jika belum login
+    header('Location: login'); // Redirect pengguna ke halaman login jika belum login
     exit();
 }
 
@@ -25,7 +25,7 @@ if (mysqli_num_rows($result) > 0) {
     $pic = $user['pic'];
 } else {
     // Pengguna tidak ditemukan, mungkin cookie tidak valid
-    header('Location: signin'); // Redirect pengguna ke halaman login
+    header('Location: login'); // Redirect pengguna ke halaman login
     exit();
 }
 
