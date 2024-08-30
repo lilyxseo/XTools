@@ -261,7 +261,7 @@ if ($result->num_rows > 0) {
 }
 
 // Fetch categories from database for Pemasukan
-$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan'";
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan' ORDER BY kategori ASC";
 $result = $conn->query($sql);
 
 $pemasukan = [];
