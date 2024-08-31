@@ -523,6 +523,43 @@ if (isset($_POST["tambahData"])) {
         }
         ?>
     </script>
+    <script>
+        var nominal1 = document.getElementById('nominal1');
+        nominal1.addEventListener('keyup', function(e)
+        {
+            nominal1.value = formatRupiah(this.value);
+        });
+        var nomninal2 = document.getElementById('nominal2');
+        nomninal2.addEventListener('keyup', function(e)
+        {
+            nomninal2.value = formatRupiah(this.value);
+        });
+        var nomninal3 = document.getElementById('nominal3');
+        nomninal3.addEventListener('keyup', function(e)
+        {
+            nomninal3.value = formatRupiah(this.value);
+        });
+        /* Fungsi */
+        function formatRupiah(angka, prefix) {
+        var number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        // Menambahkan pemisah ribuan untuk jutaan, miliaran, dan seterusnya
+        for (var i = 1; i < split.length; i++) {
+            rupiah += ',' + split[i];
+        }
+
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+    }
+    </script>
 </body>
 
 </html>
