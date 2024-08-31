@@ -350,7 +350,7 @@ if (isset($_POST["tambahData"])) {
                                                         <label for="nominal3" class="form-label">Nominal:</label>
                                                         <div class="input-group">
                                                             <span class="input-group-text">Rp.</span>
-                                                            <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                            <input type="text" class="form-control" id="nominal2" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
