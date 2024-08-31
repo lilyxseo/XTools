@@ -153,6 +153,13 @@ if ($result->num_rows > 0) {
     }
 }
 
+function clean_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
 // Fungsi tambah data
 if (isset($_POST["tambahData"])) {
     $judul = clean_input($_POST["judul"]);
