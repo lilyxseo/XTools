@@ -282,7 +282,7 @@ if (isset($_POST["tambahData"])) {
                                     <?php } ?>
                         </div>
                         <div class="row">
-                            <div class="col-12 col-lg-8">
+                            <div class="col-12 col-lg-7">
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Statistik Minggu Ini</h4>
@@ -292,7 +292,7 @@ if (isset($_POST["tambahData"])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 col-lg-4">
+                            <div class="col-12 col-lg-5">
                                 <div class="card">
                                     <div class="card-header">
                                         <h4>Tambah Data</h4>
