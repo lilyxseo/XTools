@@ -152,6 +152,49 @@ if ($result->num_rows > 0) {
         $pemasukan[] = $row;
     }
 }
+
+// Fungsi tambah data
+if (isset($_POST["tambahData"])) {
+    $judul = clean_input($_POST["judul"]);
+    $nominal_input = clean_input($_POST["nominal"]);
+    $nominal_angka = str_replace('.', '', $nominal_input);
+    $nominal_angka = str_replace(',', '.', $nominal_angka);
+    $kategori = clean_input($_POST["kategori"]);
+    $keterangan = clean_input($_POST["keterangan"]);
+    $jenis = clean_input($_POST["jenis"]);
+
+    $nominalFormatted = number_format($nominal_angka, 0, ',', '.');
+
+    $sql_select_total_uang = "SELECT nominal FROM finance_total";
+    $result = $conn->query($sql_select_total_uang);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $totalUang = floatval(str_replace('.', '', $row["nominal"]));
+    } else {
+        $totalUang = 0;
+    }
+
+    if ($jenis == 'Pemasukan') {
+        $totalUang += $nominal_angka;
+    } elseif ($jenis == 'Pengeluaran') {
+        $totalUang -= $nominal_angka;
+    }
+
+    $totalUangFormatted = number_format($totalUang, 0, ',', '.');
+
+    $sql_update_total_uang = "UPDATE finance_total SET nominal = '$totalUangFormatted'";
+    $conn->query($sql_update_total_uang);
+
+    $sql_insert_transaksi = "INSERT INTO finance_histori (judul, tanggal, nominal, kategori, keterangan, tipe, total_duit) VALUES ('$judul', NOW(), '$nominalFormatted', '$kategori', '$keterangan', '$jenis', '$totalUangFormatted')";
+    
+    if ($conn->query($sql_insert_transaksi) === TRUE) {
+        $success_message = "Data berhasil ditambahkan";
+    } else {
+        $error_message = "Error: " . $sql_insert_transaksi . "<br>" . $conn->error;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -165,6 +208,7 @@ if ($result->num_rows > 0) {
 
     <!-- Custom CSS -->
   <link rel="stylesheet" href="./assets/compiled/css/iconly.css">
+  <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
   <style>
     .coin i {
             font-size: .68rem;
@@ -184,6 +228,7 @@ if ($result->num_rows > 0) {
 
     <!-- Meta Tag -->
     <?php include 'view/meta.txt'?>
+
 </head>
 
 <body>
@@ -387,6 +432,7 @@ if ($result->num_rows > 0) {
     <?php include'view/js.txt'?>
     
     <!-- Custom JS -->
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script>
         var barOptions = {
@@ -453,6 +499,22 @@ if ($result->num_rows > 0) {
 
         var bar = new ApexCharts(document.querySelector("#bar"), barOptions);
         bar.render();
+    </script>
+    <script>
+        <?php
+        // Tampilkan pesan kesalahan jika ada
+        if (isset($error_message)) {
+            echo "swal('Error', '$error_message', 'error');";
+        }
+
+        // Tampilkan pesan sukses jika ada
+        if (isset($success_message)) {
+            echo "Swal.fire({
+                title: '$success_message',
+                icon: 'success'
+              });";
+        }
+        ?>
     </script>
 </body>
 
