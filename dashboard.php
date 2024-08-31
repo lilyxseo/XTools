@@ -125,6 +125,33 @@ for ($i = 0; $i < 7; $i++) {
 $total_uang_JSON = json_encode($total_uang_chart_data);
 
 
+
+// Kategori form tambah data
+// Fetch categories from database for Pengeluaran
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pengeluaran' ORDER BY kategori ASC";
+$result = $conn->query($sql);
+
+$pengeluaran = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
+        $row['kategori'] = ucwords(strtolower($row['kategori']));
+        $pengeluaran[] = $row;
+    }
+}
+
+// Fetch categories from database for Pemasukan
+$sql = "SELECT DISTINCT kategori FROM finance_histori WHERE tipe = 'Pemasukan' ORDER BY kategori ASC";
+$result = $conn->query($sql);
+
+$pemasukan = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        // Gunakan ucwords() untuk mengubah huruf depan menjadi besar
+        $row['kategori'] = ucwords(strtolower($row['kategori']));
+        $pemasukan[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -203,101 +230,100 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
                                     <?php } ?>
                         </div>
                         <div class="row">
-    <div class="col-12 col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h4>Statistik Minggu Ini</h4>
-            </div>
-            <div class="card-body">
-                <div id="bar"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h4>Tambah Data</h4>
-            </div>
-            <div class="card-body">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pemasukan-tab" data-bs-toggle="tab" data-bs-target="#pemasukan-tab-pane" type="button" role="tab" aria-controls="pemasukan-tab-pane" aria-selected="true">Pemasukan</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pengeluaran-tab" data-bs-toggle="tab" data-bs-target="#pengeluaran-tab-pane" type="button" role="tab" aria-controls="pengeluaran-tab-pane" aria-selected="false">Pengeluaran</button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    <!-- Pemasukan Tab -->
-                    <div class="tab-pane fade show active" id="pemasukan-tab-pane" role="tabpanel" aria-labelledby="pemasukan-tab">
-                        <form action="" method="POST">
-                            <div class="mb-3 mt-3">
-                                <label for="judul" class="form-label">Judul:</label>
-                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nominal1" class="form-label">Nominal:</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp.</span>
-                                    <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                            <div class="col-12 col-lg-8">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Statistik Minggu Ini</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="bar"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="kategori" class="form-label">Kategori:</label>
-                                <select class="form-control" id="kategori" name="kategori">
-                                    <?php foreach($pemasukan as $pemasukans): ?>
-                                        <option value="<?= $pemasukans['kategori']; ?>"><?= $pemasukans['kategori']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="keterangan" class="form-label">Keterangan:</label>
-                                <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" rows="4" cols="30"></textarea>
-                            </div>
-                            <input type="hidden" name="jenis" value="Pemasukan">
-                            <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
-                            </div>
-                        </form>
-                    </div>
-                    <!-- Pengeluaran Tab -->
-                    <div class="tab-pane fade" id="pengeluaran-tab-pane" role="tabpanel" aria-labelledby="pengeluaran-tab">
-                        <form action="" method="POST">
-                            <div class="mb-3 mt-3">
-                                <label for="judul" class="form-label">Judul:</label>
-                                <input type="text" class="form-control" id="judul" name="judul" placeholder="Belanja" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="nominal3" class="form-label">Nominal:</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp.</span>
-                                    <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                            <div class="col-12 col-lg-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>Tambah Data</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="pemasukan-tab" data-bs-toggle="tab" data-bs-target="#pemasukan-tab-pane" type="button" role="tab" aria-controls="pemasukan-tab-pane" aria-selected="true">Pemasukan</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="pengeluaran-tab" data-bs-toggle="tab" data-bs-target="#pengeluaran-tab-pane" type="button" role="tab" aria-controls="pengeluaran-tab-pane" aria-selected="false">Pengeluaran</button>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="myTabContent">
+                                            <!-- Pemasukan Tab -->
+                                            <div class="tab-pane fade show active" id="pemasukan-tab-pane" role="tabpanel" aria-labelledby="pemasukan-tab">
+                                                <form action="" method="POST">
+                                                    <div class="mb-3 mt-3">
+                                                        <label for="judul" class="form-label">Judul:</label>
+                                                        <input type="text" class="form-control" id="judul" name="judul" placeholder="Gajian" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nominal1" class="form-label">Nominal:</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text">Rp.</span>
+                                                            <input type="text" class="form-control" id="nominal1" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="kategori" class="form-label">Kategori:</label>
+                                                        <select class="form-control" id="kategori" name="kategori">
+                                                            <?php foreach($pemasukan as $pemasukans): ?>
+                                                                <option value="<?= $pemasukans['kategori']; ?>"><?= $pemasukans['kategori']; ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="keterangan" class="form-label">Keterangan:</label>
+                                                        <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Gajian bulan ini" rows="4" cols="30"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="jenis" value="Pemasukan">
+                                                    <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                        <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <!-- Pengeluaran Tab -->
+                                            <div class="tab-pane fade" id="pengeluaran-tab-pane" role="tabpanel" aria-labelledby="pengeluaran-tab">
+                                                <form action="" method="POST">
+                                                    <div class="mb-3 mt-3">
+                                                        <label for="judul" class="form-label">Judul:</label>
+                                                        <input type="text" class="form-control" id="judul" name="judul" placeholder="Belanja" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nominal3" class="form-label">Nominal:</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text">Rp.</span>
+                                                            <input type="text" class="form-control" id="nominal3" name="nominal" placeholder="500.000" required pattern="[0-9]+(?:\.[0-9]{1,2})?*" required inputmode='numeric'>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="kategori" class="form-label">Kategori:</label>
+                                                        <select class="form-control" id="kategori" name="kategori">
+                                                            <?php foreach($pengeluaran as $pengeluarans): ?>
+                                                                <option value="<?= $pengeluarans['kategori']; ?>"><?= $pengeluarans['kategori']; ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="keterangan" class="form-label">Keterangan:</label>
+                                                        <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Belanja bulanan" rows="4" cols="30"></textarea>
+                                                    </div>
+                                                    <input type="hidden" name="jenis" value="Pengeluaran">
+                                                    <div class="col-sm-12 d-flex justify-content-end mt-3">
+                                                        <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="kategori" class="form-label">Kategori:</label>
-                                <select class="form-control" id="kategori" name="kategori">
-                                    <?php foreach($pengeluaran as $pengeluarans): ?>
-                                        <option value="<?= $pengeluarans['kategori']; ?>"><?= $pengeluarans['kategori']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="keterangan" class="form-label">Keterangan:</label>
-                                <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Belanja bulanan" rows="4" cols="30"></textarea>
-                            </div>
-                            <input type="hidden" name="jenis" value="Pengeluaran">
-                            <div class="col-sm-12 d-flex justify-content-end mt-3">
-                                <button type="submit" name="tambahData" class="btn btn-outline-primary me-1 mb-1">Kirim</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+                        </div>
                     </div>
                     <div class="col-12 col-lg-3">
                         <div class="card">
