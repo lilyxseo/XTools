@@ -203,8 +203,8 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
                                     <?php } ?>
                         </div>
                         <div class="row">
-                            <div class="col-12 col-lg-9">
-                                <div class="col-12">
+                            <div class="col-12">
+                                <div class="col-12 col-lg-8">
                                     <div class="card">
                                         <div class="card-header">
                                             <h4>Statistik Minggu Ini</h4>
@@ -214,7 +214,7 @@ $total_uang_JSON = json_encode($total_uang_chart_data);
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12">
+                                <div class="col-12 col-lg-4">
                                     <div class="card">
                                         <div class="card-header">
                                             <h4>Tambah Data</h4>
